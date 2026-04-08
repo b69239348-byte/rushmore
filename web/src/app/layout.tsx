@@ -65,6 +65,9 @@ export default function RootLayout({
           <Header />
           <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
             {children}
+            <footer className="shrink-0 border-t border-border-subtle px-6 py-3 text-center text-[11px] text-text-tertiary">
+              Not affiliated with or endorsed by the NBA. All team logos and player data are property of the NBA.
+            </footer>
           </main>
         </div>
       </body>
