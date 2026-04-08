@@ -40,6 +40,7 @@ app.add_middleware(
 _player_db = None
 _live_players = None
 _jersey_by_id = None
+_position_by_id = None
 
 
 def get_db():
@@ -56,14 +57,32 @@ def _get_jersey_lookup() -> dict:
     return _jersey_by_id
 
 
+def _get_position_lookup() -> dict:
+    global _position_by_id
+    if _position_by_id is None:
+        path = DATA_DIR / "player_positions.json"
+        if path.exists():
+            raw = json.loads(path.read_text())
+            # Keys are stored as strings in JSON
+            _position_by_id = {int(k): v for k, v in raw.items()}
+        else:
+            _position_by_id = {p["id"]: p.get("position", "") for p in get_db()}
+    return _position_by_id
+
+
 def _enrich_jersey(players: list) -> list:
-    """Add jersey number to live-fetched players that don't have one yet."""
-    lookup = _get_jersey_lookup()
+    """Add jersey number and position to live-fetched players that don't have them yet."""
+    jersey_lookup = _get_jersey_lookup()
+    pos_lookup = _get_position_lookup()
     for p in players:
         if not p.get("jersey"):
-            jersey = lookup.get(p.get("id"))
+            jersey = jersey_lookup.get(p.get("id"))
             if jersey:
                 p["jersey"] = jersey
+        if not p.get("position"):
+            pos = pos_lookup.get(p.get("id"), "")
+            if pos:
+                p["position"] = pos
     return players
 
 
