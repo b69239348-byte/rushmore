@@ -42,7 +42,7 @@ export default function FreestylePage() {
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setLoading(true);
-      searchPlayers(query, 300)
+      searchPlayers(query, 500)
         .then(setPlayers)
         .catch(console.error)
         .finally(() => setLoading(false));

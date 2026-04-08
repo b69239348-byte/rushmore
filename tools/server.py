@@ -79,12 +79,12 @@ def _fallback(key: str) -> list:
 
 
 def get_live_players():
-    """Lazy-load current season leaders (top 100) for card generation."""
+    """Lazy-load current season leaders (top 200) for card generation."""
     global _live_players
     if _live_players is None:
         try:
             from live_data import fetch_season_leaders
-            _live_players = fetch_season_leaders(limit=100)
+            _live_players = fetch_season_leaders(limit=200)
         except Exception:
             print("[WARN] fetch_season_leaders failed, using fallback")
             _live_players = _fallback("season_leaders")
@@ -96,17 +96,23 @@ def get_live_players():
 
 @app.get("/api/players")
 def search_players(q: str = Query("", min_length=0), limit: int = 20):
-    """Search players by name. Empty query returns top players by total points."""
+    """Search players by name. Empty query returns all legends + current season players."""
     db = get_db()
+    live_players = get_live_players()
+    live_by_id = {p["id"]: p for p in live_players}
+    db_ids = {p["id"] for p in db}
 
     if not q.strip():
-        results = db[:100]  # default: top 100 by total points
+        # All legends + current season players not already in legends DB
+        current_only = [p for p in live_players if p["id"] not in db_ids]
+        results = db + current_only
     else:
         q_lower = q.lower()
-        results = [p for p in db if q_lower in p["name"].lower()]  # no limit on search
+        db_results = [p for p in db if q_lower in p["name"].lower()]
+        live_results = [p for p in live_players if q_lower in p["name"].lower() and p["id"] not in db_ids]
+        results = db_results + live_results
 
-    # Enrich active players with current season stats
-    live_by_id = {p["id"]: p for p in get_live_players()}
+    results = results[:limit] if limit else results
 
     out = []
     for p in results:
