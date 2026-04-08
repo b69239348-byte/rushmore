@@ -80,24 +80,21 @@ def get_font(size, weight="regular"):
     if key in _font_cache:
         return _font_cache[key]
     _fonts_dir = Path(__file__).parent.parent / "assets" / "fonts"
-    font_map = {
-        "heavy": [str(_fonts_dir / "Impact.ttf"), "/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
-        "bold": [str(_fonts_dir / "Helvetica.ttc"), "/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
-        "regular": [str(_fonts_dir / "Helvetica.ttc"), "/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
-    }
-    index_map = {"heavy": [0, 10], "bold": [0, 8], "regular": [0, 0]}
-    for fp, idx in zip(font_map.get(weight, font_map["regular"]), index_map.get(weight, [0, 0])):
+    bold = weight in ("heavy", "bold")
+    candidates = [
+        str(_fonts_dir / ("Impact.ttf" if bold else "Helvetica.ttc")),
+        "/System/Library/Fonts/SFNS.ttf",
+        "/System/Library/Fonts/Avenir Next.ttc",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ]
+    for fp in candidates:
         try:
-            font = ImageFont.truetype(fp, size, index=idx)
+            font = ImageFont.truetype(fp, size)
             _font_cache[key] = font
             return font
-        except (OSError, IOError):
-            try:
-                font = ImageFont.truetype(fp, size)
-                _font_cache[key] = font
-                return font
-            except (OSError, IOError):
-                continue
+        except Exception:
+            continue
     font = ImageFont.load_default()
     _font_cache[key] = font
     return font
