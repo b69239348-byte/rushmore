@@ -321,8 +321,9 @@ def generate_teams(req: GenerateTeamsRequest):
     try:
         stats = fetch_team_stats()
     except Exception as e:
-        print(f"[WARN] fetch_team_stats failed: {e}")
-        stats = {}
+        print(f"[WARN] fetch_team_stats failed: {e}, using fallback")
+        fallback = Path(__file__).parent / "data" / "team_stats_fallback.json"
+        stats = json.loads(fallback.read_text()) if fallback.exists() else {}
     generate_team_card(
         req.team_codes,
         title=req.title,
