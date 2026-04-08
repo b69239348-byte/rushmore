@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronUp, ChevronDown, X, Sparkles, Loader2, Pencil } from "lucide-react";
+import { ChevronUp, ChevronDown, X, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Player } from "@/lib/api";
 
@@ -22,7 +21,6 @@ export function CardBuilderPanel({
   onReset,
   generating = false,
 }: CardBuilderPanelProps) {
-  const [cardTitle, setCardTitle] = useState("");
   const filledCount = slots.filter(Boolean).length;
 
   return (
@@ -85,19 +83,8 @@ export function CardBuilderPanel({
 
 {filledCount > 0 && (
         <div className="flex flex-col gap-2">
-          <div className="relative">
-            <Pencil className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-tertiary pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Card title (e.g. MY TOP 5)"
-              value={cardTitle}
-              onChange={e => setCardTitle(e.target.value)}
-              maxLength={40}
-              className="w-full rounded-lg border border-border-subtle bg-surface pl-8 pr-3 py-2 text-sm text-text placeholder:text-text-tertiary focus:border-gold/40 focus:outline-none"
-            />
-          </div>
           <button
-            onClick={() => onBuildCard(cardTitle.trim())}
+            onClick={() => onBuildCard("")}
             disabled={generating}
             className="flex items-center justify-center gap-2 rounded-xl bg-gold py-3 text-sm font-bold text-bg transition-colors hover:bg-gold-bright disabled:opacity-50"
           >
