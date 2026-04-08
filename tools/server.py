@@ -67,6 +67,17 @@ def _enrich_jersey(players: list) -> list:
     return players
 
 
+DATA_DIR = Path(__file__).parent / "data"
+
+
+def _fallback(key: str) -> list:
+    """Load pre-fetched fallback JSON when NBA API is unavailable."""
+    path = DATA_DIR / f"{key}_fallback.json"
+    if path.exists():
+        return json.loads(path.read_text())
+    return []
+
+
 def get_live_players():
     """Lazy-load current season leaders (top 100) for card generation."""
     global _live_players
@@ -75,7 +86,8 @@ def get_live_players():
             from live_data import fetch_season_leaders
             _live_players = fetch_season_leaders(limit=100)
         except Exception:
-            _live_players = []
+            print("[WARN] fetch_season_leaders failed, using fallback")
+            _live_players = _fallback("season_leaders")
     return _live_players
 
 
@@ -218,68 +230,66 @@ def get_current_season(limit: int = 30):
 
 @app.get("/api/categories/active")
 def get_active_players(limit: int = 10):
-    """Top active players by PPG (live data, cached)."""
-    return active_players(limit)
+    try:
+        return active_players(limit)
+    except Exception:
+        players = _fallback("active_players")[:limit]
+        return {"title": f"TOP {limit} ACTIVE PLAYERS", "subtitle": "Current Season Best by PPG", "players": players}
 
 
 # --- Current Season Award Races ---
 
 @app.get("/api/categories/current-mvp")
 def get_current_mvp(limit: int = 5):
-    """Top MVP candidates this season (by EFF)."""
     season = _detect_season()
-    return {
-        "title": "MVP RACE",
-        "subtitle": f"{season} — Top Candidates by Efficiency",
-        "players": _enrich_jersey(fetch_current_mvp_race(limit)),
-    }
+    try:
+        players = fetch_current_mvp_race(limit)
+    except Exception:
+        players = _fallback("mvp_race")[:limit]
+    return {"title": "MVP RACE", "subtitle": f"{season} — Top Candidates by Efficiency", "players": _enrich_jersey(players)}
 
 
 @app.get("/api/categories/current-dpoy")
 def get_current_dpoy(limit: int = 5):
-    """Top DPOY candidates this season (by BPG + SPG)."""
     season = _detect_season()
-    return {
-        "title": "DPOY RACE",
-        "subtitle": f"{season} — Top Defensive Players",
-        "players": _enrich_jersey(fetch_current_dpoy_race(limit)),
-    }
+    try:
+        players = fetch_current_dpoy_race(limit)
+    except Exception:
+        players = _fallback("dpoy_race")[:limit]
+    return {"title": "DPOY RACE", "subtitle": f"{season} — Top Defensive Players", "players": _enrich_jersey(players)}
 
 
 @app.get("/api/categories/current-roy")
 def get_current_roy(limit: int = 5):
-    """Top ROY candidates this season (rookies by PPG)."""
     season = _detect_season()
-    return {
-        "title": "ROOKIE OF THE YEAR",
-        "subtitle": f"{season} — Top Rookies",
-        "players": _enrich_jersey(fetch_current_roy_race(limit)),
-    }
+    try:
+        players = fetch_current_roy_race(limit)
+    except Exception:
+        players = _fallback("roy_race")[:limit]
+    return {"title": "ROOKIE OF THE YEAR", "subtitle": f"{season} — Top Rookies", "players": _enrich_jersey(players)}
 
 
 @app.get("/api/categories/current-mip")
 def get_current_mip(limit: int = 5):
-    """Most improved players this season vs. last season."""
     season = _detect_season()
-    return {
-        "title": "MOST IMPROVED",
-        "subtitle": f"{season} — Biggest PPG Jump",
-        "players": _enrich_jersey(fetch_current_mip_race(limit)),
-    }
+    try:
+        players = fetch_current_mip_race(limit)
+    except Exception:
+        players = _fallback("mip_race")[:limit]
+    return {"title": "MOST IMPROVED", "subtitle": f"{season} — Biggest PPG Jump", "players": _enrich_jersey(players)}
 
 
 @app.get("/api/categories/all-nba/{tier}")
 def get_all_nba_tier(tier: int, limit: int = 5):
-    """All-NBA team by tier (1 = first team, 2 = second, 3 = third)."""
     if tier not in (1, 2, 3):
         return {"error": "Tier must be 1, 2, or 3"}
     season = _detect_season()
     ordinals = {1: "First", 2: "Second", 3: "Third"}
-    return {
-        "title": f"ALL-NBA {ordinals[tier].upper()} TEAM",
-        "subtitle": f"{season} — {ordinals[tier]} Team",
-        "players": _enrich_jersey(fetch_all_nba_tier(tier, limit)),
-    }
+    try:
+        players = fetch_all_nba_tier(tier, limit)
+    except Exception:
+        players = _fallback(f"all_nba_{tier}")[:limit]
+    return {"title": f"ALL-NBA {ordinals[tier].upper()} TEAM", "subtitle": f"{season} — {ordinals[tier]} Team", "players": _enrich_jersey(players)}
 
 
 class GenerateRequest(BaseModel):
