@@ -51,10 +51,7 @@ def _load_logo(code: str, size: int) -> Image.Image | None:
         sq = Image.new("RGBA", (d, d), (0, 0, 0, 0))
         sq.paste(img, ((d - img.width) // 2, (d - img.height) // 2))
         img = sq
-    img = img.resize((size, size), Image.LANCZOS)
-    r, g, b, a = img.split()
-    a = a.point(lambda x: int(x * 0.75))
-    return Image.merge("RGBA", (r, g, b, a))
+    return img.resize((size, size), Image.LANCZOS)
 
 
 def _draw_slot(canvas: Image.Image, x: int, y: int, w: int, h: int, code: str | None):
