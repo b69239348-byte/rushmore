@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pillow
+python-dotenv
+nba-api
+pydantic
+requests
+google-genai
