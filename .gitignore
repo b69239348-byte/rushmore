@@ -1,0 +1,10 @@
+node_modules/
+.env
+*.pyc
+__pycache__/
+.tmp/
+remotion/out/
+remotion/node_modules/
+.superpowers/
+credentials.json
+token.json

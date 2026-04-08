@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rushmore — Build Your NBA Mt. Rushmore</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" crossorigin="anonymous"></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" crossorigin="anonymous"></noscript>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="logo">RUSHMORE</div>
+            <p class="tagline">Build your all-time NBA Top 5</p>
+        </header>
+
+        <!-- Top 5 Slots — always visible -->
+        <section class="list-section">
+            <div id="slots" class="slots">
+                <div class="slot empty" data-rank="1"><span class="slot-rank">1</span><span class="slot-empty-label">Tap to add</span></div>
+                <div class="slot empty" data-rank="2"><span class="slot-rank">2</span><span class="slot-empty-label">Tap to add</span></div>
+                <div class="slot empty" data-rank="3"><span class="slot-rank">3</span><span class="slot-empty-label">Tap to add</span></div>
+                <div class="slot empty" data-rank="4"><span class="slot-rank">4</span><span class="slot-empty-label">Tap to add</span></div>
+                <div class="slot empty" data-rank="5"><span class="slot-rank">5</span><span class="slot-empty-label">Tap to add</span></div>
+            </div>
+            <button id="export-btn" class="export-btn" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export Image
+            </button>
+        </section>
+
+        <!-- Search drawer -->
+        <div id="search-drawer" class="search-drawer">
+            <div class="drawer-handle" id="drawer-handle"></div>
+            <div class="search-header">
+                <input type="text" id="search-input" placeholder="Search players..." autocomplete="off" spellcheck="false">
+                <button id="search-close" class="search-close-btn">Done</button>
+            </div>
+            <div id="search-results" class="search-results"></div>
+        </div>
+        <div id="search-backdrop" class="search-backdrop hidden"></div>
+
+        <!-- Preview overlay -->
+        <div id="preview-overlay" class="preview-overlay hidden">
+            <div class="preview-content">
+                <img id="preview-img" src="" alt="Your Rushmore card">
+                <div class="preview-actions">
+                    <a id="preview-download" class="btn-primary" download="rushmore.png">Download PNG</a>
+                    <button id="preview-close" class="btn-secondary">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
