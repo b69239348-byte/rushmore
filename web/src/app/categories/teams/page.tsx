@@ -47,10 +47,12 @@ function TeamTile({ code, selected, onClick, dim }: {
         dim ? "opacity-40 pointer-events-none" : "cursor-pointer",
         selected ? "border-gold/50 bg-card-hover" : "border-border-subtle bg-card hover:border-gold/30 hover:bg-card-hover"
       )}>
-      <div className="absolute inset-0 flex items-center justify-center p-3">
-        <div className="w-full h-full rounded-lg bg-white/8" />
-      </div>
-      {logo && <img src={logo} alt={code} className="absolute inset-0 w-full h-full object-contain p-3" />}
+      {logo && (
+        <div className="absolute inset-0 flex items-center justify-center p-4">
+          <div className="absolute inset-4 rounded-xl bg-white/18" />
+          <img src={logo} alt={code} className="relative w-full h-full object-contain" />
+        </div>
+      )}
       {selected && <div className="absolute inset-0 bg-gold/8" />}
       <div className="relative z-10 w-full bg-gradient-to-t from-bg/90 to-transparent px-2 pb-2 pt-5 text-center">
         <div className={cn("text-sm font-black tracking-wide", selected ? "text-gold" : "text-text")}>{code}</div>

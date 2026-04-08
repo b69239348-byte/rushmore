@@ -82,7 +82,7 @@ function PlayerHeadshot({ player }: { player: Player }) {
   const initials = player.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
   return (
-    <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-surface border border-border-subtle flex items-center justify-center">
+    <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-white/10 border border-border-subtle flex items-center justify-center">
       {failed ? (
         <span className="text-sm font-bold text-text-tertiary">{initials}</span>
       ) : (
