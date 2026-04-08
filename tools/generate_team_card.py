@@ -79,10 +79,11 @@ def get_font(size, weight="regular"):
     key = (size, weight)
     if key in _font_cache:
         return _font_cache[key]
+    _fonts_dir = Path(__file__).parent.parent / "assets" / "fonts"
     font_map = {
-        "heavy": ["/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
-        "bold": ["/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
-        "regular": ["/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
+        "heavy": [str(_fonts_dir / "Impact.ttf"), "/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
+        "bold": [str(_fonts_dir / "Helvetica.ttc"), "/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
+        "regular": [str(_fonts_dir / "Helvetica.ttc"), "/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Avenir Next.ttc"],
     }
     index_map = {"heavy": [0, 10], "bold": [0, 8], "regular": [0, 0]}
     for fp, idx in zip(font_map.get(weight, font_map["regular"]), index_map.get(weight, [0, 0])):
@@ -293,10 +294,14 @@ def generate_team_card(team_codes: list, title: str = "MY TOP 5 TEAMS", output_p
     draw = ImageDraw.Draw(img)
 
     # Title — Impact font for impact
+    _fonts_dir = Path(__file__).parent.parent / "assets" / "fonts"
     try:
-        font_title = ImageFont.truetype("/System/Library/Fonts/Supplemental/Impact.ttf", 96)
+        font_title = ImageFont.truetype(str(_fonts_dir / "Impact.ttf"), 96)
     except Exception:
-        font_title = get_font(72, "heavy")
+        try:
+            font_title = ImageFont.truetype("/System/Library/Fonts/Supplemental/Impact.ttf", 96)
+        except Exception:
+            font_title = get_font(72, "heavy")
     font_subtitle = get_font(28, "regular")
 
     title_bbox = draw.textbbox((0, 0), title, font=font_title)

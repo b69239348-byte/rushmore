@@ -58,8 +58,12 @@ def _find_player(db, query: str):
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
 
+FONTS_DIR = Path(__file__).parent.parent / "assets" / "fonts"
+
+
 def _font(size: int, bold=False):
     candidates = [
+        str(FONTS_DIR / "Helvetica.ttc"),
         "/System/Library/Fonts/Helvetica.ttc",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold
             else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -77,6 +81,7 @@ def _font(size: int, bold=False):
 def _font_impact(size: int):
     """Impact or DIN Condensed Bold — for card titles."""
     candidates = [
+        str(FONTS_DIR / "Impact.ttf"),
         "/System/Library/Fonts/Supplemental/Impact.ttf",
         "/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf",
         "/System/Library/Fonts/Supplemental/Arial Black.ttf",

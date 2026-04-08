@@ -19,8 +19,12 @@ GRAY   = (120, 120, 135)
 SLOT_FILL = (18, 24, 42, 210)
 
 
+FONTS_DIR = Path(__file__).parent.parent / "assets" / "fonts"
+
+
 def _font(size: int, bold: bool = False):
     candidates = [
+        str(FONTS_DIR / ("Impact.ttf" if bold else "Helvetica.ttc")),
         "/System/Library/Fonts/Supplemental/Impact.ttf" if bold
             else "/System/Library/Fonts/Helvetica.ttc",
         "/System/Library/Fonts/Helvetica.ttc",
