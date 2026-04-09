@@ -89,7 +89,7 @@ export default function Home() {
     <div className="flex flex-col">
 
       {/* ── Hero ── */}
-      <section className="relative flex min-h-[calc(100svh-56px)] md:min-h-screen items-end md:items-start overflow-hidden">
+      <section className="relative flex min-h-[calc(100svh-56px)] md:min-h-screen flex-col md:items-start overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0">
           <Image
@@ -103,43 +103,66 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-bg/50 via-transparent to-bg/20" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 w-full px-8 pb-12 pt-8 md:pb-16 md:pt-12">
-          <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-1.5 text-xs font-medium text-gold mb-6">
-              <Zap className="h-3 w-3" />
-              2025–26 Season Live
-            </div>
+        {/* Content — on mobile: text top, buttons bottom; on desktop: stacked naturally */}
+        <div className="relative z-10 w-full flex-1 flex flex-col md:block px-8">
+          {/* Text group — anchored to top on mobile */}
+          <div className="pt-8 md:pt-12">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-1.5 text-xs font-medium text-gold mb-6">
+                <Zap className="h-3 w-3" />
+                2025 - 2026 Season Live
+              </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05]">
-              Build Your NBA
-              <br />
-              <span className="text-gold">Mount Rushmore</span>
-            </h1>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05]">
+                Build Your NBA
+                <br />
+                <span className="text-gold">Mount Rushmore</span>
+              </h1>
 
-            <p className="mt-5 text-base sm:text-lg text-text-secondary leading-relaxed max-w-xl">
-              Every NBA fan has an opinion.
-              <br />
-              Now put it on record — and share it on your socials.
-            </p>
+              <p className="mt-5 text-base sm:text-lg text-text-secondary leading-relaxed max-w-xl">
+                Every NBA fan has an opinion.
+                <br />
+                Now put it on record — and share it on your socials.
+              </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/categories/all-time"
-                className="flex items-center gap-2 rounded-xl bg-gold px-7 py-3.5 text-sm font-bold text-bg hover:bg-gold-bright transition-all"
-              >
-                <Trophy className="h-4 w-4" />
-                Explore Rankings
-              </Link>
-              <Link
-                href="/freestyle"
-                className="flex items-center gap-2 rounded-xl border border-border bg-surface/50 backdrop-blur-sm px-7 py-3.5 text-sm font-semibold text-text-secondary hover:text-text hover:border-text-tertiary transition-all"
-              >
-                Build Your Top 5
-              </Link>
+              {/* Buttons visible on desktop inline with text */}
+              <div className="mt-8 hidden md:flex flex-wrap gap-3">
+                <Link
+                  href="/categories/all-time"
+                  className="flex items-center gap-2 rounded-xl bg-gold px-7 py-3.5 text-sm font-bold text-bg hover:bg-gold-bright transition-all"
+                >
+                  <Trophy className="h-4 w-4" />
+                  Explore Rankings
+                </Link>
+                <Link
+                  href="/freestyle"
+                  className="flex items-center gap-2 rounded-xl border border-border bg-surface/50 backdrop-blur-sm px-7 py-3.5 text-sm font-semibold text-text-secondary hover:text-text hover:border-text-tertiary transition-all"
+                >
+                  Build Your Top 5
+                </Link>
+              </div>
             </div>
           </div>
 
+          {/* Spacer pushes buttons to bottom on mobile */}
+          <div className="flex-1 md:hidden" />
+
+          {/* Buttons anchored to bottom on mobile */}
+          <div className="pb-14 md:hidden flex flex-wrap gap-3">
+            <Link
+              href="/categories/all-time"
+              className="flex items-center gap-2 rounded-xl bg-gold px-7 py-3.5 text-sm font-bold text-bg hover:bg-gold-bright transition-all"
+            >
+              <Trophy className="h-4 w-4" />
+              Explore Rankings
+            </Link>
+            <Link
+              href="/freestyle"
+              className="flex items-center gap-2 rounded-xl border border-border bg-surface/50 backdrop-blur-sm px-7 py-3.5 text-sm font-semibold text-text-secondary hover:text-text hover:border-text-tertiary transition-all"
+            >
+              Build Your Top 5
+            </Link>
+          </div>
         </div>
       </section>
 
