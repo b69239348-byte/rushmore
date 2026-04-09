@@ -8,7 +8,6 @@ interface CardPreviewProps {
   onClose: () => void;
 }
 
-// X (Twitter) logo as inline SVG
 function XLogo({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -27,7 +26,12 @@ export function CardPreview({ url, onClose }: CardPreviewProps) {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    // Prevent body scroll while modal open
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
   }, [onClose]);
 
   const handleSave = () => {
@@ -45,7 +49,6 @@ export function CardPreview({ url, onClose }: CardPreviewProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard API not supported — fall back to save
       handleSave();
     }
   };
@@ -59,12 +62,11 @@ export function CardPreview({ url, onClose }: CardPreviewProps) {
       setShared(true);
       setTimeout(() => setShared(false), 2000);
     } catch {
-      // User cancelled or not supported — no-op
+      // cancelled or not supported
     }
   };
 
   const handleXShare = async () => {
-    // Download card first, then open X intent
     handleSave();
     const text = encodeURIComponent("My NBA Mount Rushmore 🏀 — built on rushmore.app");
     window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
@@ -72,24 +74,31 @@ export function CardPreview({ url, onClose }: CardPreviewProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="relative max-h-[90vh] max-w-sm w-full flex flex-col gap-3">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 shrink-0">
+        <span className="text-sm font-semibold text-white/80">Your Card</span>
         <button
           onClick={onClose}
-          className="absolute -top-10 right-0 rounded-lg p-1.5 text-text-secondary hover:text-text transition-colors"
+          className="rounded-lg p-1.5 text-white/60 hover:text-white transition-colors"
         >
           <X className="h-5 w-5" />
         </button>
+      </div>
 
+      {/* Image — fills remaining space, shrinks to fit */}
+      <div className="flex-1 min-h-0 flex items-center justify-center px-4 py-2 overflow-hidden">
         <img
           src={url}
           alt="Your Top 5 card"
-          className="w-full rounded-xl"
+          className="max-h-full max-w-full rounded-xl object-contain shadow-2xl"
         />
+      </div>
 
-        {/* Primary actions */}
+      {/* Buttons — always at bottom, never hidden */}
+      <div className="shrink-0 px-4 pt-3 pb-5 flex flex-col gap-2">
         <div className="flex gap-2">
           <button
             onClick={handleSave}
@@ -101,7 +110,7 @@ export function CardPreview({ url, onClose }: CardPreviewProps) {
           {canNativeShare ? (
             <button
               onClick={handleNativeShare}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border-subtle py-3 text-sm font-semibold text-text-secondary hover:bg-card-hover hover:text-text transition-colors"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors"
             >
               {shared ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
               {shared ? "Shared!" : "Share"}
@@ -109,7 +118,7 @@ export function CardPreview({ url, onClose }: CardPreviewProps) {
           ) : (
             <button
               onClick={handleCopy}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border-subtle py-3 text-sm font-semibold text-text-secondary hover:bg-card-hover hover:text-text transition-colors"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied!" : "Copy"}
@@ -117,11 +126,10 @@ export function CardPreview({ url, onClose }: CardPreviewProps) {
           )}
         </div>
 
-        {/* Secondary: X share + copy (desktop) */}
         <div className="flex gap-2">
           <button
             onClick={handleXShare}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border-subtle py-2.5 text-sm font-semibold text-text-secondary hover:bg-card-hover hover:text-text transition-colors"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 py-2.5 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors"
           >
             <XLogo className="h-4 w-4" />
             Post on X
@@ -129,7 +137,7 @@ export function CardPreview({ url, onClose }: CardPreviewProps) {
           {canNativeShare && (
             <button
               onClick={handleCopy}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border-subtle py-2.5 text-sm font-semibold text-text-secondary hover:bg-card-hover hover:text-text transition-colors"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 py-2.5 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied!" : "Copy"}
