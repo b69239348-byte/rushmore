@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Trophy, Flame, Users } from "lucide-react";
+import { Mountain, Home, Trophy, Flame, Users, Shuffle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
@@ -34,6 +34,7 @@ export function SidebarContent() {
       <NavItem href="/" icon={Home} label="Home" active={pathname === "/"} />
       <NavItem href="/legenden" icon={Trophy} label="Legends" active={pathname.startsWith("/legenden")} />
       <NavItem href="/aktuell" icon={Flame} label="Season" active={pathname.startsWith("/aktuell")} />
+      <NavItem href="/freestyle" icon={Shuffle} label="Freestyle" active={pathname.startsWith("/freestyle")} />
       <NavItem href="/categories/teams" icon={Users} label="Teams" active={pathname.startsWith("/categories/teams")} />
     </nav>
   );

@@ -89,7 +89,7 @@ export default function Home() {
     <div className="flex flex-col">
 
       {/* ── Hero ── */}
-      <section className="relative flex min-h-screen items-start overflow-hidden">
+      <section className="relative flex min-h-[calc(100svh-56px)] md:min-h-screen items-end md:items-start overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0">
           <Image
@@ -99,12 +99,12 @@ export default function Home() {
             priority
             className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg/40 via-bg/10 to-bg/50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-bg/30 via-transparent to-bg/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-bg/20 to-bg/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-bg/50 via-transparent to-bg/20" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 w-full px-8 pb-16 pt-12">
+        <div className="relative z-10 w-full px-8 pb-12 pt-8 md:pb-16 md:pt-12">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-1.5 text-xs font-medium text-gold mb-6">
               <Zap className="h-3 w-3" />
