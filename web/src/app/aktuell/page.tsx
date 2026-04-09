@@ -11,5 +11,5 @@ const CATEGORIES: CategoryPill[] = [
 ];
 
 export default function AktuellPage() {
-  return <SplitCategoryPage title="This Season" categories={CATEGORIES} />;
+  return <SplitCategoryPage title="This Season" categories={CATEGORIES} showBuilder />;
 }

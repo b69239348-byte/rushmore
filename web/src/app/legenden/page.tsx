@@ -18,5 +18,5 @@ const CATEGORIES: CategoryPill[] = [
 ];
 
 export default function LegendenPage() {
-  return <SplitCategoryPage title="Legends" categories={CATEGORIES} />;
+  return <SplitCategoryPage title="Legends" categories={CATEGORIES} showBuilder />;
 }
