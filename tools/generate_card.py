@@ -243,10 +243,14 @@ def generate_card(
     for q in queries[:5]:
         p = _find_player(db, str(q))
         if p:
-            # Active players: use current team from live data
             if p["id"] in live_by_id:
+                live = live_by_id[p["id"]]
                 p = dict(p)
-                p["current_team"] = live_by_id[p["id"]]["team"]
+                p["current_team"] = live["team"]
+                # Overwrite stats with current season averages from live data
+                for key in ("ppg", "rpg", "apg", "spg", "bpg"):
+                    if live.get(key) is not None:
+                        p[f"current_{key}"] = live[key]
             players.append(p)
 
     # ── Canvas: background image ──
@@ -293,12 +297,9 @@ def generate_card(
     t_up = title.upper()
     t_bbox = draw.textbbox((0, 0), t_up, font=title_font)
     t_w = t_bbox[2] - t_bbox[0]
-    draw.text(((WIDTH - t_w) // 2, 44), t_up, fill=title_color, font=title_font)
-
-    s_up = subtitle.upper()
-    s_bbox = draw.textbbox((0, 0), s_up, font=sub_font)
-    s_w = s_bbox[2] - s_bbox[0]
-    draw.text(((WIDTH - s_w) // 2, 44 + 102), s_up, fill=subtitle_color, font=sub_font)
+    # Center title vertically in TITLE_H area
+    title_y = (TITLE_H - (t_bbox[3] - t_bbox[1])) // 2
+    draw.text(((WIDTH - t_w) // 2, title_y), t_up, fill=title_color, font=title_font)
 
     # ── Thin divider under title ──
     div_y = TITLE_H - 10
@@ -339,9 +340,9 @@ def generate_card(
             canvas.alpha_composite(logo, (logo_x, row_y + 6))
             draw = ImageDraw.Draw(canvas)
 
-        # Rank number
+        # Rank number — always white/teal on dark row panels regardless of background
         rank_str = f"0{i + 1}" if i + 1 < 10 else str(i + 1)
-        rank_color = accent if is_top else accent_dim
+        rank_color = WHITE if is_top else (160, 160, 160)
         r_bbox = draw.textbbox((0, 0), rank_str, font=rank_font)
         r_h = r_bbox[3] - r_bbox[1]
         r_x = PAD + 14
@@ -394,7 +395,7 @@ def generate_card(
         meta_y = text_y + 50 + 8
         draw.text((text_x, meta_y), meta, fill=GRAY, font=meta_font)
 
-        # Stats line — game stats override season averages
+        # Stats line — prefer current season, fall back to career
         if game_stats and player["id"] in game_stats:
             gs = game_stats[player["id"]]
             pts = gs.get("pts", 0)
@@ -404,22 +405,19 @@ def generate_card(
             blk = gs.get("blk", 0)
             stats = f"{pts} PTS  ·  {reb} REB  ·  {ast} AST  ·  {stl} STL  ·  {blk} BLK"
         else:
-            ppg = player.get("ppg", 0)
-            rpg = player.get("rpg", 0)
-            apg = player.get("apg", 0) or 0
-            spg = player.get("spg", 0) or 0
-            bpg = player.get("bpg", 0) or 0
-            third_candidates = [
-                (apg, "APG", apg / 10),
-                (spg, "SPG", spg / 2.0),
-                (bpg, "BPG", bpg / 3.5),
-            ]
-            third_val, third_label, _ = max(
-                (c for c in third_candidates if c[0] > 0),
-                key=lambda c: c[2],
-                default=(apg, "APG", 0),
-            )
-            stats = f"{ppg} PPG  ·  {rpg} RPG  ·  {third_val} {third_label}"
+            ppg = player.get("current_ppg") or player.get("ppg", 0)
+            rpg = player.get("current_rpg") or player.get("rpg", 0)
+            apg = player.get("current_apg") or player.get("apg", 0) or 0
+            spg = player.get("current_spg") or player.get("spg", 0) or 0
+            bpg = player.get("current_bpg") or player.get("bpg", 0) or 0
+            # Pick best 4th stat: SPG vs BPG
+            if bpg > 0 and (bpg / 3.5 >= spg / 2.0 if spg > 0 else True):
+                fourth = f"{bpg} BPG"
+            elif spg > 0:
+                fourth = f"{spg} SPG"
+            else:
+                fourth = f"{bpg} BPG"
+            stats = f"{ppg} PPG  ·  {rpg} RPG  ·  {apg} APG  ·  {fourth}"
         stats_y = meta_y + 28 + 8
         draw.text((text_x, stats_y), stats, fill=GRAY, font=stats_font)
 

@@ -10,7 +10,7 @@ export function MobileHeader() {
   return (
     <>
       {/* Top bar — mobile only */}
-      <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border-subtle bg-bg/90 backdrop-blur-md px-4 md:hidden">
+      <header className="shrink-0 z-50 flex h-14 items-center justify-between border-b border-border-subtle bg-bg/90 backdrop-blur-md px-4 md:hidden">
         <button
           onClick={() => setOpen(true)}
           className="rounded-lg p-1.5 text-text-secondary hover:text-text transition-colors"

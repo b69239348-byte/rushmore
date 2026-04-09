@@ -59,9 +59,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${dmSans.variable} ${lato.variable}`}>
       <body>
-        {/* Mobile header (hamburger) */}
-        <MobileHeader />
-        <div className="flex h-screen flex-col overflow-hidden">
+        <div className="flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
+          {/* Mobile header (hamburger) */}
+          <MobileHeader />
           <Header />
           <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
             {children}

@@ -8,9 +8,9 @@ import { getTeamLogoUrl, getPlayerTeam } from "@/lib/teams";
 
 function StatBadge({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex flex-col items-center gap-0.5 rounded-lg bg-surface px-2.5 py-1.5 min-w-[44px]">
-      <div className="text-sm font-bold text-text" style={{ fontFamily: "var(--font-numeric)", fontFeatureSettings: '"tnum" on, "lnum" on', letterSpacing: "0.03em" }}>{value}</div>
-      <div className="text-[9px] uppercase text-text-tertiary tracking-wider font-semibold">
+    <div className="flex flex-col items-center gap-0.5 rounded-lg bg-surface px-1.5 py-1 min-w-[34px] sm:px-2.5 sm:py-1.5 sm:min-w-[44px]">
+      <div className="text-xs sm:text-sm font-bold text-text" style={{ fontFamily: "var(--font-numeric)", fontFeatureSettings: '"tnum" on, "lnum" on', letterSpacing: "0.03em" }}>{value}</div>
+      <div className="text-[8px] sm:text-[9px] uppercase text-text-tertiary tracking-wider font-semibold">
         {label}
       </div>
     </div>
@@ -55,22 +55,14 @@ function TeamLogo({ player }: { player: Player }) {
   );
 }
 
-function getBestThirdStat(player: Player): { label: string; value: number } {
-  // Use current season stats if available, else career
-  const apg = player.current_apg ?? player.apg;
+function getBestFourthStat(player: Player): { label: string; value: number } {
+  // Best between SPG and BPG (APG is always shown as 3rd stat now)
   const spg = player.current_spg ?? player.spg ?? 0;
   const bpg = player.current_bpg ?? player.bpg ?? 0;
 
-  // Normalize to typical NBA elite range so the most impressive stat wins
-  // APG: elite ~10  | SPG: elite ~2.0  | BPG: elite ~3.5
-  const candidates = [
-    { label: "APG", value: apg,  score: apg / 10 },
-    { label: "SPG", value: spg,  score: spg / 2.0 },
-    { label: "BPG", value: bpg,  score: bpg / 3.5 },
-  ].filter(c => c.value > 0);
-
-  if (candidates.length === 0) return { label: "APG", value: player.apg };
-  return candidates.reduce((best, c) => c.score > best.score ? c : best);
+  if (bpg / 3.5 >= spg / 2.0 && bpg > 0) return { label: "BPG", value: bpg };
+  if (spg > 0) return { label: "SPG", value: spg };
+  return { label: "BPG", value: bpg };
 }
 
 function isActiveSeason(player: Player): boolean {
@@ -174,12 +166,13 @@ export function PlayerList({
               <AwardBadges awards={player.awards} />
             </div>
 
-            {/* 4. Stats */}
+            {/* 4. Stats — PPG, RPG, APG, best-other — compact on mobile */}
             <div className="flex shrink-0 self-center flex-col items-end gap-1">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <StatBadge label="PPG" value={player.current_ppg ?? player.ppg} />
                 <StatBadge label="RPG" value={player.current_rpg ?? player.rpg} />
-                <StatBadge {...getBestThirdStat(player)} />
+                <StatBadge label="APG" value={player.current_apg ?? player.apg} />
+                <StatBadge {...getBestFourthStat(player)} />
               </div>
               {isActiveSeason(player) && (
                 <span className="text-[9px] uppercase tracking-wider text-gold/60 font-semibold">

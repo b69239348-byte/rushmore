@@ -27,7 +27,7 @@ export function SelectionBar({
   if (filledCount === 0) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 md:left-56">
+    <div className="fixed bottom-0 left-0 right-0 z-40">
       <div className="mx-auto max-w-3xl px-4">
         <div className="rounded-t-2xl border border-b-0 border-border-subtle bg-surface/95 backdrop-blur-md shadow-2xl">
           {/* Collapsed bar */}

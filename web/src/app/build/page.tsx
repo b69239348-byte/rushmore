@@ -68,13 +68,12 @@ export default function BuildPage() {
     setSlots([null, null, null, null, null]);
   }, []);
 
-  const handleBuildCard = useCallback(async (cardTitle: string) => {
+  const handleBuildCard = useCallback(async () => {
     const playerIds = slots.filter(Boolean).map((p) => (p as Player).id);
     if (playerIds.length === 0) return;
     setGenerating(true);
     try {
-      const title = cardTitle || "MY TOP 5";
-      const blob = await generateCard(playerIds, title.toUpperCase(), "ALL-TIME GREATEST");
+      const blob = await generateCard(playerIds, "MY TOP 5", undefined);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(blob));
     } catch (err) {
@@ -155,7 +154,7 @@ export default function BuildPage() {
           onRemove={handleRemove}
           onReorder={handleReorder}
           onReset={handleReset}
-          onBuildCard={() => handleBuildCard("MY TOP 5")}
+          onBuildCard={handleBuildCard}
           generating={generating}
         />
       </div>

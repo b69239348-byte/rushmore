@@ -105,7 +105,7 @@ export async function generateCard(
     body: JSON.stringify({
       player_ids: playerIds,
       title: title || "MY MT. RUSHMORE",
-      subtitle: subtitle || "ALL-TIME GREATEST",
+      subtitle: "",
       ...(background && { background }),
     }),
   });

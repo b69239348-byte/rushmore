@@ -19,7 +19,7 @@ export function Header() {
 
   return (
     <header className={cn(
-      "sticky top-0 z-50 flex h-14 items-center px-6 transition-colors duration-300",
+      "sticky top-0 z-50 hidden md:flex h-14 items-center px-6 transition-colors duration-300",
       isHome
         ? "bg-transparent border-b border-transparent"
         : "bg-bg/90 border-b border-border-subtle backdrop-blur-md"

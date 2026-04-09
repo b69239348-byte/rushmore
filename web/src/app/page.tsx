@@ -132,7 +132,7 @@ export default function Home() {
                 Explore Rankings
               </Link>
               <Link
-                href="/build"
+                href="/freestyle"
                 className="flex items-center gap-2 rounded-xl border border-border bg-surface/50 backdrop-blur-sm px-7 py-3.5 text-sm font-semibold text-text-secondary hover:text-text hover:border-text-tertiary transition-all"
               >
                 Build Your Top 5

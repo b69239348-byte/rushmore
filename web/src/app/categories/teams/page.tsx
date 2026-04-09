@@ -133,7 +133,6 @@ function TiersPanel({ tiers, onUpdate }: {
 }
 
 function TiersTab() {
-  const [cardTitle, setCardTitle] = useState("");
   const [tiers, setTiers] = useState<Tier[]>([
     { id: 1, name: "Elite", teams: [] },
     { id: 2, name: "Contender", teams: [] },
@@ -161,8 +160,7 @@ function TiersTab() {
     if (!limited.length) return;
     const codes = limited.map(t => t.code);
     const tierLabels = limited.map(t => t.tier);
-    const activeTierName = tiers.find(t => t.teams.length > 0)?.name.toUpperCase() ?? "MY TIERS";
-    const title = cardTitle.trim() || activeTierName;
+    const title = tiers.find(t => t.teams.length > 0)?.name.toUpperCase() ?? "MY TIERS";
     setExporting(true);
     try {
       const blob = await generateTeamCard(codes, title, tierLabels);
@@ -201,12 +199,6 @@ function TiersTab() {
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-72 shrink-0 flex-col border-l border-border-subtle p-4 sticky top-0 self-start max-h-[calc(100vh-120px)] overflow-y-auto gap-3">
-        <div className="relative">
-          <Pencil className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-tertiary pointer-events-none" />
-          <input type="text" placeholder="Name your tier list" value={cardTitle}
-            onChange={e => setCardTitle(e.target.value)} maxLength={40}
-            className="w-full rounded-lg border border-border-subtle bg-surface pl-8 pr-3 py-2 text-sm text-text placeholder:text-text-tertiary focus:border-gold/40 focus:outline-none" />
-        </div>
         <div className="flex flex-col gap-2 flex-1 overflow-y-auto">
           <p className="text-xs font-semibold uppercase tracking-widest text-text-tertiary">Your Tiers</p>
           {tiers.map((tier, ti) => (
@@ -460,8 +452,6 @@ function BracketTab() {
   const assign = (idx: number, code: string) => {
     setSlots(prev => {
       const next = [...prev];
-      const old = next.indexOf(code);
-      if (old > -1) next[old] = null;
       next[idx] = code;
       return next;
     });

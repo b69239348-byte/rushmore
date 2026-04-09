@@ -8,7 +8,7 @@ interface CardBuilderPanelProps {
   slots: (Player | null)[];
   onRemove: (index: number) => void;
   onReorder: (from: number, to: number) => void;
-  onBuildCard: (title: string) => void;
+  onBuildCard: () => void;
   onReset: () => void;
   generating?: boolean;
 }
@@ -84,7 +84,7 @@ export function CardBuilderPanel({
 {filledCount > 0 && (
         <div className="flex flex-col gap-2">
           <button
-            onClick={() => onBuildCard("")}
+            onClick={() => onBuildCard()}
             disabled={generating}
             className="flex items-center justify-center gap-2 rounded-xl bg-gold py-3 text-sm font-bold text-bg transition-colors hover:bg-gold-bright disabled:opacity-50"
           >
