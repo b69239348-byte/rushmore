@@ -389,11 +389,12 @@ function SlotBox({ idx, slots, onAssign, onClear, touchMode, selectedTeam }: {
 
   const canReceive = touchMode && !!selectedTeam && !code;
 
-  const handleClick = () => {
-    if (touchMode) {
-      if (selectedTeam && !code) onAssign(idx, selectedTeam);
-      else if (code) onClear(idx);
-    }
+  const handleTap = (e: React.PointerEvent) => {
+    if (!touchMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (selectedTeam && !code) onAssign(idx, selectedTeam);
+    else if (code) onClear(idx);
   };
 
   return (
@@ -406,9 +407,12 @@ function SlotBox({ idx, slots, onAssign, onClear, touchMode, selectedTeam }: {
         const c = e.dataTransfer.getData("text/plain");
         if (c) onAssign(idx, c);
       } : undefined}
-      onClick={touchMode ? handleClick : (code ? () => onClear(idx) : undefined)}
+      onPointerUp={touchMode ? handleTap : undefined}
+      onClick={!touchMode && code ? () => onClear(idx) : undefined}
+      style={touchMode ? { touchAction: "manipulation" } : undefined}
       className={cn(
-        "flex items-center gap-1 rounded border px-1.5 py-1 w-full min-w-0 transition-all",
+        "flex items-center gap-1 rounded border w-full min-w-0 transition-all",
+        touchMode ? "px-1.5 py-2.5" : "px-1.5 py-1",
         touchMode && (canReceive || code) && "cursor-pointer",
         over ? "border-gold bg-gold/15" :
         canReceive ? "border-gold/60 bg-gold/8 animate-pulse" :
@@ -422,7 +426,8 @@ function SlotBox({ idx, slots, onAssign, onClear, touchMode, selectedTeam }: {
       </span>
       {code && (
         <button
-          onClick={e => { e.stopPropagation(); onClear(idx); }}
+          onPointerUp={touchMode ? e => { e.stopPropagation(); onClear(idx); } : undefined}
+          onClick={!touchMode ? e => { e.stopPropagation(); onClear(idx); } : undefined}
           className="shrink-0 text-text-tertiary hover:text-red-400"
         >
           <X className="h-2.5 w-2.5" />
@@ -734,10 +739,13 @@ function BracketTab() {
               <div
                 onDragOver={!touchMode ? e => e.preventDefault() : undefined}
                 onDrop={!touchMode ? e => { e.preventDefault(); const c = e.dataTransfer.getData("text/plain"); if (c) assign(30, c); } : undefined}
-                onClick={touchMode ? () => {
+                onPointerUp={touchMode ? e => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   if (selectedTeam && !slots[30]) assign(30, selectedTeam);
                   else if (slots[30]) clear(30);
                 } : undefined}
+                style={touchMode ? { touchAction: "manipulation" } : undefined}
                 className={cn(
                   "flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 py-3 px-4 w-full max-w-[170px] transition-all",
                   touchMode && (selectedTeam && !slots[30]) && "cursor-pointer",
@@ -754,12 +762,14 @@ function BracketTab() {
                       <img src={getTeamLogoUrl(slots[30])!} alt={slots[30]} className="h-9 w-9 object-contain" />
                     )}
                     <span className="text-xs font-black text-gold">{slots[30]}</span>
-                    <button onClick={e => { e.stopPropagation(); clear(30); }} className="text-[9px] text-text-tertiary hover:text-red-400">remove</button>
+                    <button
+                      onPointerUp={e => { e.stopPropagation(); clear(30); }}
+                      className="text-[9px] text-text-tertiary hover:text-red-400"
+                    >remove</button>
                   </>
                 ) : (
                   <span className="text-[9px] text-text-tertiary text-center leading-tight">
-                    {touchMode ? "Champion" : "Champion"}<br/>
-                    {touchMode ? "tap here" : "drop here"}
+                    Champion<br/>{touchMode ? "tap here" : "drop here"}
                   </span>
                 )}
               </div>
