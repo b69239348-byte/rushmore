@@ -365,7 +365,7 @@ function DragChip({ code, dimmed, touchMode, selected, onTap }: {
         selected
           ? "border-gold bg-gold/15 shadow-[0_0_12px_rgba(201,168,76,0.25)]"
           : dimmed
-          ? "border-border-subtle bg-surface opacity-35 pointer-events-none"
+          ? "border-border-subtle bg-surface opacity-40"
           : "border-border-subtle bg-card hover:border-gold/30 hover:bg-card-hover"
       )}
     >
