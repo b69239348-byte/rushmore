@@ -50,7 +50,7 @@ function TeamTile({ code, selected, onClick, dim }: {
       {logo && (
         <div className="absolute inset-0 flex items-center justify-center p-4">
           <div className="absolute inset-4 rounded-xl bg-white/18" />
-          <img src={logo} alt={code} className="relative w-full h-full object-contain" />
+          <img src={logo} alt={code} draggable={false} onDragStart={e => e.preventDefault()} className="relative w-full h-full object-contain pointer-events-none" />
         </div>
       )}
       {selected && <div className="absolute inset-0 bg-gold/8" />}
@@ -112,7 +112,7 @@ function TiersPanel({ tiers, onUpdate }: {
                 const logo = getTeamLogoUrl(code);
                 return (
                   <div key={code} className="flex items-center gap-1 rounded bg-surface border border-border-subtle px-1.5 py-0.5 group">
-                    {logo && <img src={logo} alt={code} className="h-4 w-4 object-contain" />}
+                    {logo && <img src={logo} alt={code} draggable={false} onDragStart={e => e.preventDefault()} className="h-4 w-4 object-contain pointer-events-none" />}
                     <span className="text-[10px] font-bold">{code}</span>
                     <button onClick={() => removeTeam(tier.id, code)} className="opacity-0 group-hover:opacity-100 text-text-tertiary hover:text-red-400 ml-0.5"><X className="h-2.5 w-2.5" /></button>
                   </div>
@@ -318,7 +318,7 @@ function TierPanelRow({ tier, tierIndex, isActive, tiers, onUpdate }: {
             const logo = getTeamLogoUrl(code);
             return (
               <div key={code} className="flex items-center gap-0.5 rounded bg-surface border border-border-subtle px-1 py-0.5">
-                {logo && <img src={logo} alt={code} className="h-3.5 w-3.5 object-contain" />}
+                {logo && <img src={logo} alt={code} draggable={false} onDragStart={e => e.preventDefault()} className="h-3.5 w-3.5 object-contain pointer-events-none" />}
                 <span className="text-[10px] font-bold">{code}</span>
               </div>
             );
@@ -369,7 +369,14 @@ function DragChip({ code, dimmed, touchMode, selected, onTap }: {
           : "border-border-subtle bg-card hover:border-gold/30 hover:bg-card-hover"
       )}
     >
-      {logo && <img src={logo} alt={code} className="h-10 w-10 object-contain" />}
+      {logo && (
+        <img
+          src={logo} alt={code}
+          draggable={false}
+          onDragStart={e => e.preventDefault()}
+          className="h-10 w-10 object-contain pointer-events-none"
+        />
+      )}
       <span className="text-[11px] font-black tracking-wide text-text-secondary leading-none">{code}</span>
     </div>
   );
@@ -420,7 +427,7 @@ function SlotBox({ idx, slots, onAssign, onClear, touchMode, selectedTeam }: {
                "border-dashed border-border bg-transparent"
       )}
     >
-      {logo && <img src={logo} alt={code!} className="h-4 w-4 object-contain shrink-0" />}
+      {logo && <img src={logo} alt={code!} draggable={false} onDragStart={e => e.preventDefault()} className="h-4 w-4 object-contain shrink-0 pointer-events-none" />}
       <span className={cn("text-[10px] font-bold truncate flex-1 min-w-0", code ? "text-text" : "text-text-tertiary")}>
         {code ?? "—"}
       </span>
@@ -759,7 +766,7 @@ function BracketTab() {
                 {slots[30] ? (
                   <>
                     {getTeamLogoUrl(slots[30]) && (
-                      <img src={getTeamLogoUrl(slots[30])!} alt={slots[30]} className="h-9 w-9 object-contain" />
+                      <img src={getTeamLogoUrl(slots[30])!} alt={slots[30]} draggable={false} onDragStart={e => e.preventDefault()} className="h-9 w-9 object-contain pointer-events-none" />
                     )}
                     <span className="text-xs font-black text-gold">{slots[30]}</span>
                     <button
