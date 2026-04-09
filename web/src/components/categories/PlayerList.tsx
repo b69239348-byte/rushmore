@@ -20,20 +20,15 @@ function StatBadge({ label, value }: { label: string; value: number }) {
 function AwardBadges({ awards }: { awards?: Player["awards"] }) {
   if (!awards) return null;
   const badges: string[] = [];
-  if (awards.championships)
-    badges.push(`${awards.championships}x Champ`);
+  if (awards.championships) badges.push(`${awards.championships}x Champ`);
   if (awards.mvps) badges.push(`${awards.mvps}x MVP`);
-  if (awards.finals_mvps)
-    badges.push(`${awards.finals_mvps}x FMVP`);
+  if (awards.finals_mvps) badges.push(`${awards.finals_mvps}x FMVP`);
   if (badges.length === 0) return null;
 
   return (
     <div className="flex flex-wrap gap-1.5 mt-1">
       {badges.map((b) => (
-        <span
-          key={b}
-          className="rounded-md bg-gold/10 px-1.5 py-0.5 text-[10px] font-semibold text-gold"
-        >
+        <span key={b} className="rounded-md bg-gold/10 px-1.5 py-0.5 text-[10px] font-semibold text-gold">
           {b}
         </span>
       ))}
@@ -46,20 +41,13 @@ function TeamLogo({ player }: { player: Player }) {
   const logoUrl = getTeamLogoUrl(team);
   if (!logoUrl) return <div className="h-10 w-10 shrink-0" />;
   return (
-    <img
-      src={logoUrl}
-      alt=""
-      aria-hidden
-      className="h-10 w-10 shrink-0 object-contain opacity-40"
-    />
+    <img src={logoUrl} alt="" aria-hidden className="h-10 w-10 shrink-0 object-contain opacity-40" />
   );
 }
 
 function getBestFourthStat(player: Player): { label: string; value: number } {
-  // Best between SPG and BPG (APG is always shown as 3rd stat now)
   const spg = player.current_spg ?? player.spg ?? 0;
   const bpg = player.current_bpg ?? player.bpg ?? 0;
-
   if (bpg / 3.5 >= spg / 2.0 && bpg > 0) return { label: "BPG", value: bpg };
   if (spg > 0) return { label: "SPG", value: spg };
   return { label: "BPG", value: bpg };
@@ -109,6 +97,15 @@ export function PlayerList({
     <div className="flex flex-col gap-3">
       {players.map((player, i) => {
         const isSelected = selectedIds?.has(player.id) ?? false;
+        const active = isActiveSeason(player);
+        const stats = (
+          <div className="flex items-center gap-1 flex-wrap">
+            <StatBadge label="PPG" value={player.current_ppg ?? player.ppg} />
+            <StatBadge label="RPG" value={player.current_rpg ?? player.rpg} />
+            <StatBadge label="APG" value={player.current_apg ?? player.apg} />
+            <StatBadge {...getBestFourthStat(player)} />
+          </div>
+        );
 
         return (
           <div
@@ -117,7 +114,7 @@ export function PlayerList({
               if (isSelectable && !isSelected) onPlayerClick(player);
             }}
             className={cn(
-              "flex items-center gap-4 rounded-xl border px-4 py-3.5 transition-all duration-200",
+              "flex items-center gap-3 rounded-xl border px-3 py-3 transition-all duration-200",
               isSelectable && !isSelected && "cursor-pointer hover:border-gold/40 hover:bg-card-hover hover:shadow-[0_0_20px_rgba(76,201,240,0.06)]",
               isSelected
                 ? "border-gold/40 bg-gold/5 shadow-[0_0_24px_rgba(76,201,240,0.08)]"
@@ -128,7 +125,7 @@ export function PlayerList({
             {/* 1. Jersey / Rank */}
             {showRank && (
               <div className={cn(
-                "flex h-8 w-9 shrink-0 items-center justify-center rounded-md text-sm font-bold",
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-sm font-bold",
                 isSelected ? "bg-gold/15 text-gold" : "bg-surface text-gold/50"
               )} style={{ fontFamily: "var(--font-numeric)" }}>
                 {isSelected ? (
@@ -144,7 +141,7 @@ export function PlayerList({
             {/* 2. Headshot */}
             <PlayerHeadshot player={player} />
 
-            {/* 3. Name + team + awards */}
+            {/* 3. Name + meta + stats (stats always in this column on mobile) */}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className={cn("font-semibold text-base truncate", isSelected && "text-gold")}>
@@ -154,7 +151,7 @@ export function PlayerList({
                   <span className="text-xs text-text-tertiary shrink-0">{player.position}</span>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-text-secondary mt-0.5">
+              <div className="flex items-center gap-1.5 text-xs text-text-secondary mt-0.5 flex-wrap">
                 {player.team && <span>{player.team}</span>}
                 {player.teams && player.teams.length > 0 && !player.team && (
                   <span>{player.teams.slice(0, 3).join(" · ")}</span>
@@ -164,23 +161,27 @@ export function PlayerList({
                 )}
               </div>
               <AwardBadges awards={player.awards} />
+
+              {/* Stats — mobile only */}
+              <div className="mt-2 md:hidden">
+                {stats}
+                {active && (
+                  <span className="text-[9px] uppercase tracking-wider text-gold/60 font-semibold mt-1 block">
+                    this season
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* 4. Stats — PPG, RPG, APG, best-other — compact on mobile */}
-            <div className="flex shrink-0 self-center flex-col items-end gap-1">
-              <div className="flex items-center gap-1">
-                <StatBadge label="PPG" value={player.current_ppg ?? player.ppg} />
-                <StatBadge label="RPG" value={player.current_rpg ?? player.rpg} />
-                <StatBadge label="APG" value={player.current_apg ?? player.apg} />
-                <StatBadge {...getBestFourthStat(player)} />
-              </div>
-              {isActiveSeason(player) && (
+            {/* 4. Stats column — desktop only */}
+            <div className="hidden md:flex shrink-0 self-center flex-col items-end gap-1">
+              {stats}
+              {active && (
                 <span className="text-[9px] uppercase tracking-wider text-gold/60 font-semibold">
                   this season
                 </span>
               )}
             </div>
-
           </div>
         );
       })}

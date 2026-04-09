@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Download, Loader2, Pencil, Check, Plus, Trophy, Sparkles } from "lucide-react";
 import { getTeamLogoUrl } from "@/lib/teams";
 import { generateTeamCard } from "@/lib/api";
@@ -346,19 +346,26 @@ const EAST_CODES = ["BOS","MIL","PHI","MIA","NYK","ATL","CHI","CLE","IND","TOR",
 //   East R1    22-29  matchups (22,23)(24,25)(26,27)(28,29)
 //   Champion   30
 
-function DragChip({ code, dimmed }: { code: string; dimmed: boolean }) {
+function DragChip({ code, dimmed, touchMode, selected, onTap }: {
+  code: string; dimmed: boolean;
+  touchMode?: boolean; selected?: boolean; onTap?: () => void;
+}) {
   const logo = getTeamLogoUrl(code);
   return (
     <div
-      draggable
-      onDragStart={e => {
+      draggable={!touchMode}
+      onDragStart={!touchMode ? e => {
         e.dataTransfer.setData("text/plain", code);
         e.dataTransfer.effectAllowed = "move";
-      }}
+      } : undefined}
+      onClick={touchMode ? onTap : undefined}
       className={cn(
-        "flex flex-col items-center gap-1 rounded-xl border px-3 py-2 cursor-grab active:cursor-grabbing select-none transition-opacity shrink-0",
-        dimmed
-          ? "border-border-subtle bg-surface opacity-35"
+        "flex flex-col items-center gap-1 rounded-xl border px-3 py-2 select-none transition-all shrink-0",
+        touchMode ? "cursor-pointer active:scale-95" : "cursor-grab active:cursor-grabbing",
+        selected
+          ? "border-gold bg-gold/15 shadow-[0_0_12px_rgba(201,168,76,0.25)]"
+          : dimmed
+          ? "border-border-subtle bg-surface opacity-35 pointer-events-none"
           : "border-border-subtle bg-card hover:border-gold/30 hover:bg-card-hover"
       )}
     >
@@ -368,29 +375,43 @@ function DragChip({ code, dimmed }: { code: string; dimmed: boolean }) {
   );
 }
 
-function SlotBox({ idx, slots, onAssign, onClear }: {
+function SlotBox({ idx, slots, onAssign, onClear, touchMode, selectedTeam }: {
   idx: number;
   slots: (string|null)[];
   onAssign: (idx: number, code: string) => void;
   onClear: (idx: number) => void;
+  touchMode?: boolean;
+  selectedTeam?: string | null;
 }) {
   const code = slots[idx];
   const logo = code ? getTeamLogoUrl(code) : null;
   const [over, setOver] = useState(false);
 
+  const canReceive = touchMode && !!selectedTeam && !code;
+
+  const handleClick = () => {
+    if (touchMode) {
+      if (selectedTeam && !code) onAssign(idx, selectedTeam);
+      else if (code) onClear(idx);
+    }
+  };
+
   return (
     <div
-      onDragOver={e => { e.preventDefault(); setOver(true); }}
-      onDragLeave={() => setOver(false)}
-      onDrop={e => {
+      onDragOver={!touchMode ? e => { e.preventDefault(); setOver(true); } : undefined}
+      onDragLeave={!touchMode ? () => setOver(false) : undefined}
+      onDrop={!touchMode ? e => {
         e.preventDefault();
         setOver(false);
         const c = e.dataTransfer.getData("text/plain");
         if (c) onAssign(idx, c);
-      }}
+      } : undefined}
+      onClick={touchMode ? handleClick : (code ? () => onClear(idx) : undefined)}
       className={cn(
         "flex items-center gap-1 rounded border px-1.5 py-1 w-full min-w-0 transition-all",
+        touchMode && (canReceive || code) && "cursor-pointer",
         over ? "border-gold bg-gold/15" :
+        canReceive ? "border-gold/60 bg-gold/8 animate-pulse" :
         code ? "border-border-subtle bg-surface" :
                "border-dashed border-border bg-transparent"
       )}
@@ -400,7 +421,10 @@ function SlotBox({ idx, slots, onAssign, onClear }: {
         {code ?? "—"}
       </span>
       {code && (
-        <button onClick={() => onClear(idx)} className="shrink-0 text-text-tertiary hover:text-red-400">
+        <button
+          onClick={e => { e.stopPropagation(); onClear(idx); }}
+          className="shrink-0 text-text-tertiary hover:text-red-400"
+        >
           <X className="h-2.5 w-2.5" />
         </button>
       )}
@@ -408,24 +432,26 @@ function SlotBox({ idx, slots, onAssign, onClear }: {
   );
 }
 
-function Pair({ a, b, side, last = false, slots, onAssign, onClear }: {
+function Pair({ a, b, side, last = false, slots, onAssign, onClear, touchMode, selectedTeam }: {
   a: number; b: number; side: "west" | "east"; last?: boolean;
   slots: (string|null)[];
   onAssign: (i: number, code: string) => void;
   onClear: (i: number) => void;
+  touchMode?: boolean;
+  selectedTeam?: string | null;
 }) {
   const w = side === "west";
   return (
     <div className="relative flex flex-col gap-0.5 w-full">
       <div className="relative">
-        <SlotBox idx={a} slots={slots} onAssign={onAssign} onClear={onClear} />
+        <SlotBox idx={a} slots={slots} onAssign={onAssign} onClear={onClear} touchMode={touchMode} selectedTeam={selectedTeam} />
         <div className={cn(
           "absolute top-1/2 w-2 h-[calc(100%+2px)] border-t border-border pointer-events-none",
           w ? "left-full border-r" : "right-full border-l"
         )} />
       </div>
       <div className="relative">
-        <SlotBox idx={b} slots={slots} onAssign={onAssign} onClear={onClear} />
+        <SlotBox idx={b} slots={slots} onAssign={onAssign} onClear={onClear} touchMode={touchMode} selectedTeam={selectedTeam} />
         <div className={cn(
           "absolute bottom-1/2 w-2 h-[calc(100%+2px)] border-b border-border pointer-events-none",
           w ? "left-full border-r" : "right-full border-l"
@@ -445,9 +471,15 @@ function BracketTab() {
   const [slots, setSlots] = useState<(string|null)[]>(Array(31).fill(null));
   const [exporting, setExporting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  const [touchMode, setTouchMode] = useState(false);
   const bracketRef = useRef<HTMLDivElement>(null);
 
-  const usedSet = new Set<string>();
+  useEffect(() => {
+    setTouchMode("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  const usedSet = new Set(slots.filter(Boolean) as string[]);
 
   const assign = (idx: number, code: string) => {
     setSlots(prev => {
@@ -455,10 +487,15 @@ function BracketTab() {
       next[idx] = code;
       return next;
     });
+    setSelectedTeam(null);
   };
 
   const clear = (idx: number) => {
     setSlots(prev => { const n = [...prev]; n[idx] = null; return n; });
+  };
+
+  const handleSelectTeam = (code: string) => {
+    setSelectedTeam(prev => prev === code ? null : code);
   };
 
   const doExport = async () => {
@@ -558,11 +595,13 @@ function BracketTab() {
   };
 
   const p = (a: number, b: number, side: "west"|"east", last?: boolean) => (
-    <Pair a={a} b={b} side={side} last={last} slots={slots} onAssign={assign} onClear={clear} />
+    <Pair a={a} b={b} side={side} last={last} slots={slots} onAssign={assign} onClear={clear}
+          touchMode={touchMode} selectedTeam={selectedTeam} />
   );
 
   const s = (idx: number) => (
-    <SlotBox idx={idx} slots={slots} onAssign={assign} onClear={clear} />
+    <SlotBox idx={idx} slots={slots} onAssign={assign} onClear={clear}
+             touchMode={touchMode} selectedTeam={selectedTeam} />
   );
 
   return (
@@ -575,23 +614,35 @@ function BracketTab() {
             <p className="text-[9px] uppercase tracking-widest font-semibold text-text-tertiary mb-2">Western Conference</p>
 
             <div className="flex flex-wrap gap-1.5">
-              {WEST_CODES.map(c => <DragChip key={c} code={c} dimmed={usedSet.has(c)} />)}
+              {WEST_CODES.map(c => (
+                <DragChip key={c} code={c} dimmed={usedSet.has(c) && selectedTeam !== c}
+                  touchMode={touchMode} selected={selectedTeam === c}
+                  onTap={() => handleSelectTeam(c)} />
+              ))}
             </div>
           </div>
           <div className="w-px bg-border-subtle shrink-0 self-stretch" />
           <div className="flex-1 min-w-0">
             <p className="text-[9px] uppercase tracking-widest font-semibold text-text-tertiary mb-2">Eastern Conference</p>
             <div className="flex flex-wrap gap-1.5">
-              {EAST_CODES.map(c => <DragChip key={c} code={c} dimmed={usedSet.has(c)} />)}
+              {EAST_CODES.map(c => (
+                <DragChip key={c} code={c} dimmed={usedSet.has(c) && selectedTeam !== c}
+                  touchMode={touchMode} selected={selectedTeam === c}
+                  onTap={() => handleSelectTeam(c)} />
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Drag hint ── */}
+      {/* ── Hint ── */}
       <div className="px-4 pt-3 pb-1 md:px-6 shrink-0">
-        <p className="text-xs text-text-tertiary text-center">
-          Drag teams from above into the bracket slots · Click a slot to remove
+        <p className="text-xs text-center transition-colors duration-200" style={{ color: selectedTeam ? "var(--color-gold)" : "var(--color-text-tertiary)" }}>
+          {touchMode
+            ? selectedTeam
+              ? `${selectedTeam} selected — tap a bracket slot to place`
+              : "Tap a team above to select · tap a slot to place · tap slot again to remove"
+            : "Drag teams from above into the bracket slots · click a slot to remove"}
         </p>
       </div>
 
@@ -679,13 +730,21 @@ function BracketTab() {
                 </div>
                 {s(15)}
               </div>
-              {/* Champion drop zone */}
+              {/* Champion zone */}
               <div
-                onDragOver={e => e.preventDefault()}
-                onDrop={e => { e.preventDefault(); const c = e.dataTransfer.getData("text/plain"); if (c) assign(30, c); }}
+                onDragOver={!touchMode ? e => e.preventDefault() : undefined}
+                onDrop={!touchMode ? e => { e.preventDefault(); const c = e.dataTransfer.getData("text/plain"); if (c) assign(30, c); } : undefined}
+                onClick={touchMode ? () => {
+                  if (selectedTeam && !slots[30]) assign(30, selectedTeam);
+                  else if (slots[30]) clear(30);
+                } : undefined}
                 className={cn(
                   "flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 py-3 px-4 w-full max-w-[170px] transition-all",
-                  slots[30] ? "border-gold/70 bg-gold/10" : "border-dashed border-gold/30 hover:border-gold/50"
+                  touchMode && (selectedTeam && !slots[30]) && "cursor-pointer",
+                  touchMode && slots[30] && "cursor-pointer",
+                  slots[30] ? "border-gold/70 bg-gold/10" :
+                  (touchMode && selectedTeam) ? "border-gold/60 bg-gold/8 animate-pulse border-dashed" :
+                  "border-dashed border-gold/30 hover:border-gold/50"
                 )}
               >
                 <Trophy className={cn("h-5 w-5", slots[30] ? "text-gold" : "text-text-tertiary")} />
@@ -695,10 +754,13 @@ function BracketTab() {
                       <img src={getTeamLogoUrl(slots[30])!} alt={slots[30]} className="h-9 w-9 object-contain" />
                     )}
                     <span className="text-xs font-black text-gold">{slots[30]}</span>
-                    <button onClick={() => clear(30)} className="text-[9px] text-text-tertiary hover:text-red-400">remove</button>
+                    <button onClick={e => { e.stopPropagation(); clear(30); }} className="text-[9px] text-text-tertiary hover:text-red-400">remove</button>
                   </>
                 ) : (
-                  <span className="text-[9px] text-text-tertiary text-center leading-tight">Champion<br/>drop here</span>
+                  <span className="text-[9px] text-text-tertiary text-center leading-tight">
+                    {touchMode ? "Champion" : "Champion"}<br/>
+                    {touchMode ? "tap here" : "drop here"}
+                  </span>
                 )}
               </div>
             </div>
