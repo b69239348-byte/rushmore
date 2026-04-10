@@ -232,7 +232,10 @@ def generate_card(
     game_stats=None,          # {player_id: {pts, reb, ast, stl, blk}}; overrides season averages
     card_format: str = "story",
 ):
-    canvas_h = 1350 if card_format == "feed" else HEIGHT
+    _FORMATS = {"story": HEIGHT, "feed": 1350}
+    if card_format not in _FORMATS:
+        raise ValueError(f"card_format must be 'story' or 'feed', got {card_format!r}")
+    canvas_h = _FORMATS[card_format]
     _row_area = canvas_h - TITLE_H - FOOTER_H
     _row_h = _row_area // ROW_COUNT
     _photo_size = int(_row_h * 0.70)
@@ -277,13 +280,14 @@ def generate_card(
     canvas.alpha_composite(grad, (0, 0))
 
     # ── Bottom gradient (ground area) ──
-    bot_grad = Image.new("RGBA", (WIDTH, 160), (0, 0, 0, 0))
+    _grad_h = max(80, canvas_h // 12)
+    bot_grad = Image.new("RGBA", (WIDTH, _grad_h), (0, 0, 0, 0))
     fill_color = (255, 255, 255, 0) if is_light else (4, 8, 18, 0)
-    for y in range(160):
-        alpha = int(100 * (y / 160))
+    for y in range(_grad_h):
+        alpha = int(100 * (y / _grad_h))
         r, g, b, _ = (*fill_color[:3], 0)
         ImageDraw.Draw(bot_grad).line([(0, y), (WIDTH, y)], fill=(r, g, b, alpha))
-    canvas.alpha_composite(bot_grad, (0, canvas_h - 160))
+    canvas.alpha_composite(bot_grad, (0, canvas_h - _grad_h))
 
     draw = ImageDraw.Draw(canvas)
 
