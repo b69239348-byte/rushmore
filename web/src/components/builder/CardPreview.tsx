@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, Copy, Check, X, Share2 } from "lucide-react";
 
 type CardFormat = "story" | "feed";
@@ -25,13 +25,18 @@ export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
   const [regenerating, setRegenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
+  const internalUrlRef = useRef<string | null>(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const canCopyImage =
-    typeof navigator !== "undefined" && !!navigator.clipboard?.write;
+    typeof navigator !== "undefined" &&
+    !!navigator.clipboard?.write &&
+    typeof ClipboardItem !== "undefined";
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     };
     window.addEventListener("keydown", handler);
     document.body.style.overflow = "hidden";
@@ -39,7 +44,13 @@ export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
       window.removeEventListener("keydown", handler);
       document.body.style.overflow = "";
     };
-  }, [onClose]);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (internalUrlRef.current) URL.revokeObjectURL(internalUrlRef.current);
+    };
+  }, []);
 
   const handleFormatChange = async (newFormat: CardFormat) => {
     if (newFormat === format || !regenerate || regenerating) return;
@@ -47,7 +58,8 @@ export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
     try {
       const blob = await regenerate(newFormat);
       const newUrl = URL.createObjectURL(blob);
-      if (currentUrl !== url) URL.revokeObjectURL(currentUrl);
+      if (internalUrlRef.current) URL.revokeObjectURL(internalUrlRef.current);
+      internalUrlRef.current = newUrl;
       setCurrentUrl(newUrl);
       setFormat(newFormat);
     } finally {
