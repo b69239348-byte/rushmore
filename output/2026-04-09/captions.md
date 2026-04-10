@@ -10,17 +10,10 @@
 ---
 
 ## Instagram
-Last night's top performers dropped numbers 🔥 BI led the way with 38. Who had the best game? 👇 #NBA #Basketball #NBAHighlights #NBAStats #BrandonIngram #KevinDurant #NightlyBests
+Ingram 38. KD 29. Chicago put 3 in the top 5. Last night delivered. 🔥 #NBA #Basketball #NBAHighlights #NBAStats #TopPerformers #HoopLife #LastNight
 
 ## TikTok
-38 pts. 31 pts. 29 pts. Last night went CRAZY 🔥 Chicago had THREE guys in the top 5 — tap in and tell us: who had the best game? 👇 #NBA #NBAHighlights #BallIsLife #NBAStats
+38 pts. 31 pts. 29 pts. Chicago had THREE guys in the top 5 last night 🤯 Who was your MVP? 👇 #NBA #NBAHighlights #Basketball #BallIsLife
 
 ## X (Twitter)
-Top 5 from last night:
-1. Ingram – 38/7/7
-2. Tre Jones – 31/6/3
-3. Durant – 29/7/5
-4. Sexton – 27/3/2
-5. Miller – 26/11/3
-
-Chicago put on a show. #NBA #NBAStats
+Last night's top 5: Ingram 38/7/7, Tre Jones 31/6/3, Durant 29/7/5, Sexton 27/3/2, Miller 26/11/3. Chicago quietly put 3 guys in the top 5. #NBA #NBAStats
