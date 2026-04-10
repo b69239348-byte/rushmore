@@ -114,9 +114,9 @@ export default function Home() {
               </div>
 
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05]">
-                Create & Share Your
+                Create & Share
                 <br />
-                <span className="text-gold">NBA Rushmore</span>
+                <span className="text-gold">Your NBA Rushmore</span>
               </h1>
 
               <p className="mt-5 text-base sm:text-lg text-text-secondary leading-relaxed max-w-xl">
