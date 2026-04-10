@@ -154,7 +154,7 @@ export function PlayerList({
               <div className="flex items-center gap-1.5 text-xs text-text-secondary mt-0.5 flex-wrap">
                 {player.team && <span>{player.team}</span>}
                 {player.teams && player.teams.length > 0 && !player.team && (
-                  <span>{player.teams.slice(0, 3).join(" · ")}</span>
+                  <span>{player.teams.filter(t => t !== "TOT").slice(0, 3).join(" · ")}</span>
                 )}
                 {player.from_year && player.to_year && (
                   <span className="text-text-tertiary">{player.from_year}–{player.to_year}</span>
