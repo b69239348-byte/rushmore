@@ -114,31 +114,30 @@ export default function Home() {
               </div>
 
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05]">
-                Build Your NBA
+                Create & Share Your
                 <br />
-                <span className="text-gold">Mount Rushmore</span>
+                <span className="text-gold">NBA Rushmore</span>
               </h1>
 
               <p className="mt-5 text-base sm:text-lg text-text-secondary leading-relaxed max-w-xl">
-                Every NBA fan has an opinion.
-                <br />
-                Now put it on record — and share it on your socials.
+                Build your all-time Mount Rushmore, rank this season's stars, awards or create custom categories — then turn them into beautiful shareable cards.
               </p>
 
               {/* Buttons visible on desktop inline with text */}
-              <div className="mt-8 hidden md:flex flex-wrap gap-3">
+              <div className="mt-8 hidden md:flex flex-col gap-3 items-start">
                 <Link
-                  href="/categories/all-time"
+                  href="/legenden"
                   className="flex items-center gap-2 rounded-xl bg-gold px-7 py-3.5 text-sm font-bold text-bg hover:bg-gold-bright transition-all"
                 >
                   <Trophy className="h-4 w-4" />
-                  Explore Rankings
+                  Start Creating
                 </Link>
                 <Link
                   href="/freestyle"
-                  className="flex items-center gap-2 rounded-xl border border-border bg-surface/50 backdrop-blur-sm px-7 py-3.5 text-sm font-semibold text-text-secondary hover:text-text hover:border-text-tertiary transition-all"
+                  className="flex items-center gap-1 text-sm text-text-tertiary hover:text-gold transition-colors"
                 >
-                  Build Your Top 5
+                  Explore Current Season, Awards, Teams & Freestyle
+                  <ChevronRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -148,19 +147,20 @@ export default function Home() {
           <div className="flex-1 md:hidden" />
 
           {/* Buttons anchored to bottom on mobile */}
-          <div className="pb-14 md:hidden flex flex-wrap gap-3">
+          <div className="pb-14 md:hidden flex flex-col gap-3 items-start">
             <Link
-              href="/categories/all-time"
+              href="/legenden"
               className="flex items-center gap-2 rounded-xl bg-gold px-7 py-3.5 text-sm font-bold text-bg hover:bg-gold-bright transition-all"
             >
               <Trophy className="h-4 w-4" />
-              Explore Rankings
+              Start Creating
             </Link>
             <Link
               href="/freestyle"
-              className="flex items-center gap-2 rounded-xl border border-border bg-surface/50 backdrop-blur-sm px-7 py-3.5 text-sm font-semibold text-text-secondary hover:text-text hover:border-text-tertiary transition-all"
+              className="flex items-center gap-1 text-sm text-text-tertiary hover:text-gold transition-colors"
             >
-              Build Your Top 5
+              Explore Current Season, Awards, Teams & Freestyle
+              <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
