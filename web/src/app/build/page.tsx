@@ -75,7 +75,7 @@ export default function BuildPage() {
     setLastPlayerIds(playerIds);
     setGenerating(true);
     try {
-      const blob = await generateCard(playerIds, "MY TOP 5", undefined);
+      const blob = await generateCard(playerIds, "MY TOP 5", undefined, undefined, "feed");
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(blob));
     } catch (err) {

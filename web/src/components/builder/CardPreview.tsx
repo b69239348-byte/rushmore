@@ -21,7 +21,7 @@ function XLogo({ className }: { className?: string }) {
 
 export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
   const [currentUrl, setCurrentUrl] = useState(url);
-  const [format, setFormat] = useState<CardFormat>("story");
+  const [format, setFormat] = useState<CardFormat>("feed");
   const [regenerating, setRegenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);

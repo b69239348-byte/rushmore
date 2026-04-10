@@ -18,7 +18,7 @@ export function ExportButton({ slots, disabled, onPreview }: ExportButtonProps) 
     if (playerIds.length === 0) return;
     setLoading(true);
     try {
-      const blob = await generateCard(playerIds, "MY TOP 5", "ALL-TIME GREATS");
+      const blob = await generateCard(playerIds, "MY TOP 5", "ALL-TIME GREATS", undefined, "feed");
       onPreview(URL.createObjectURL(blob));
     } catch (err) {
       console.error("Export failed:", err);

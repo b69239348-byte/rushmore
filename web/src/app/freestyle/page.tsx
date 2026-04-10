@@ -92,7 +92,7 @@ export default function FreestylePage() {
     setGenerating(true);
     try {
       const title = cardTitle.trim() || "MY TOP 5";
-      const blob = await generateCard(playerIds, title.toUpperCase(), "FREESTYLE", randomBackground());
+      const blob = await generateCard(playerIds, title.toUpperCase(), "FREESTYLE", randomBackground(), "feed");
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(blob));
     } catch (err) {

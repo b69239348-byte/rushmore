@@ -9,15 +9,19 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 # --- Constants ---
-WIDTH, HEIGHT = 1080, 1920
-PADDING = 40
-CARD_GAP = 12
-TITLE_AREA_HEIGHT = 180
-FOOTER_HEIGHT = 80
+# Pass --insta to generate 4:5 format (1080×1350) optimized for Instagram feed
+INSTA_MODE = '--insta' in sys.argv
 
-CARD_AREA_TOP = TITLE_AREA_HEIGHT
+WIDTH  = 1080
+HEIGHT = 1350 if INSTA_MODE else 1920
+PADDING = 48 if INSTA_MODE else 40
+CARD_GAP = 10 if INSTA_MODE else 12
+TITLE_AREA_HEIGHT = 160 if INSTA_MODE else 180
+FOOTER_HEIGHT     = 65  if INSTA_MODE else 80
+
+CARD_AREA_TOP    = TITLE_AREA_HEIGHT
 CARD_AREA_BOTTOM = HEIGHT - FOOTER_HEIGHT
-CARD_HEIGHT = (CARD_AREA_BOTTOM - CARD_AREA_TOP - 4 * CARD_GAP) // 5
+CARD_HEIGHT      = (CARD_AREA_BOTTOM - CARD_AREA_TOP - 4 * CARD_GAP) // 5
 
 # Colors
 BG_COLOR = "#0a0a0f"
@@ -474,7 +478,8 @@ if __name__ == "__main__":
         "Magic Johnson",
     ]
 
-    if len(sys.argv) > 1:
-        demo_players = sys.argv[1:6]
+    player_args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    if player_args:
+        demo_players = player_args[:5]
 
     generate_card(demo_players)

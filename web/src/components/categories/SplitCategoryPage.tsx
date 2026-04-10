@@ -107,7 +107,8 @@ export function SplitCategoryPage({ title, categories, showBuilder = false }: Sp
         playerIds,
         `MY ${active.label.toUpperCase()}`,
         data?.subtitle || active.cardSubtitle,
-        randomBackground()
+        randomBackground(),
+        "feed"
       );
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(blob));
