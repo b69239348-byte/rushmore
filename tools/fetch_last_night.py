@@ -87,6 +87,7 @@ def fetch_top5():
                 db_ids.add(p["player_id"])
                 added.append(p["player_name"])
                 log(f"Added {p['player_name']} to players.json")
+                _download_headshot(p["player_id"], p["player_name"])
         p["in_db"] = True  # always true now — either was there or just added
 
     if added:
@@ -94,6 +95,20 @@ def fetch_top5():
         log(f"players.json updated with: {added}")
 
     return {"date": date_label, "games": True, "players": top5}
+
+
+def _download_headshot(player_id: int, name: str):
+    """Download headshot from NBA CDN if not already present."""
+    import urllib.request
+    headshot_path = REPO_ROOT / "assets" / "headshots" / f"{player_id}.png"
+    if headshot_path.exists():
+        return
+    url = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
+    try:
+        urllib.request.urlretrieve(url, headshot_path)
+        log(f"Downloaded headshot for {name} ({player_id})")
+    except Exception as e:
+        log(f"Could not download headshot for {name}: {e}")
 
 
 def _fetch_player_info(player_id: int, name: str, team: str) -> dict:
@@ -160,7 +175,7 @@ def main():
     import subprocess
     date_label = result["date"]
     cmds = [
-        ["git", "-C", str(REPO_ROOT), "add", str(OUTPUT_FILE), str(REPO_ROOT / "players.json")],
+        ["git", "-C", str(REPO_ROOT), "add", str(OUTPUT_FILE), str(REPO_ROOT / "players.json"), str(REPO_ROOT / "assets" / "headshots")],
         ["git", "-C", str(REPO_ROOT), "commit", "-m", f"data: last night top5 {date_label}"],
         ["git", "-C", str(REPO_ROOT), "push"],
     ]
