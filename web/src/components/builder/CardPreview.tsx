@@ -11,6 +11,34 @@ interface CardPreviewProps {
   regenerate?: (format: CardFormat) => Promise<Blob>;
 }
 
+/** Converts any image to a 1080×1080 square (letterboxed) for Instagram Post. */
+async function toSquareBlob(srcUrl: string): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const SIZE = 1080;
+      const canvas = document.createElement("canvas");
+      canvas.width = SIZE;
+      canvas.height = SIZE;
+      const ctx = canvas.getContext("2d")!;
+      // Dark background matching card style
+      ctx.fillStyle = "#05080e";
+      ctx.fillRect(0, 0, SIZE, SIZE);
+      // Scale image to fit fully inside the square (letterbox)
+      const scale = Math.min(SIZE / img.naturalWidth, SIZE / img.naturalHeight);
+      const w = Math.round(img.naturalWidth * scale);
+      const h = Math.round(img.naturalHeight * scale);
+      ctx.drawImage(img, Math.round((SIZE - w) / 2), Math.round((SIZE - h) / 2), w, h);
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error("toBlob failed"))),
+        "image/png"
+      );
+    };
+    img.onerror = reject;
+    img.src = srcUrl;
+  });
+}
+
 function XLogo({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -67,17 +95,25 @@ export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
     }
   };
 
-  const handleSave = () => {
+  const getShareBlob = async (): Promise<Blob> => {
+    if (format === "feed") return toSquareBlob(currentUrl);
+    const res = await fetch(currentUrl);
+    return res.blob();
+  };
+
+  const handleSave = async () => {
+    const blob = await getShareBlob();
+    const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = currentUrl;
+    a.href = blobUrl;
     a.download = `rushmore-${format}.png`;
     a.click();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
   };
 
   const handleCopy = async () => {
     try {
-      const res = await fetch(currentUrl);
-      const blob = await res.blob();
+      const blob = await getShareBlob();
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -88,8 +124,7 @@ export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
 
   const handleNativeShare = async () => {
     try {
-      const res = await fetch(currentUrl);
-      const blob = await res.blob();
+      const blob = await getShareBlob();
       const file = new File([blob], `rushmore-${format}.png`, { type: "image/png" });
       await navigator.share({ files: [file], title: "My NBA Rushmore" });
       setShared(true);
