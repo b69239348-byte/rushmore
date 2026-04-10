@@ -96,7 +96,7 @@ def _font_impact(size: int):
 
 # ── Image helpers ──────────────────────────────────────────────────────────────
 
-def _load_background(name: str) -> Image.Image:
+def _load_background(name: str, height: int = HEIGHT) -> Image.Image:
     """Load and resize background to card dimensions."""
     # Try card_backgrounds first, then user uploads
     candidates = [
@@ -108,24 +108,24 @@ def _load_background(name: str) -> Image.Image:
     for path in candidates:
         if path.exists():
             img = Image.open(path).convert("RGB")
-            # Fill 1080x1920 preserving aspect ratio
+            # Fill 1080xheight preserving aspect ratio
             img_ratio = img.width / img.height
-            card_ratio = WIDTH / HEIGHT
+            card_ratio = WIDTH / height
             if img_ratio > card_ratio:
-                new_h = HEIGHT
-                new_w = int(HEIGHT * img_ratio)
+                new_h = height
+                new_w = int(height * img_ratio)
             else:
                 new_w = WIDTH
                 new_h = int(WIDTH / img_ratio)
             img = img.resize((new_w, new_h), Image.LANCZOS)
             left = (new_w - WIDTH) // 2
-            top  = (new_h - HEIGHT) // 2
-            return img.crop((left, top, left + WIDTH, top + HEIGHT))
+            top  = (new_h - height) // 2
+            return img.crop((left, top, left + WIDTH, top + height))
     # Fallback: dark gradient
-    fallback = Image.new("RGB", (WIDTH, HEIGHT), (8, 12, 24))
+    fallback = Image.new("RGB", (WIDTH, height), (8, 12, 24))
     draw = ImageDraw.Draw(fallback)
-    for y in range(HEIGHT):
-        t = y / HEIGHT
+    for y in range(height):
+        t = y / height
         r = int(8  + t * 4)
         g = int(12 + t * 4)
         b = int(24 + t * 8)
@@ -230,7 +230,13 @@ def generate_card(
     background="night_court_outdoor",
     extra_players=None,
     game_stats=None,          # {player_id: {pts, reb, ast, stl, blk}}; overrides season averages
+    card_format: str = "story",
 ):
+    canvas_h = 1350 if card_format == "feed" else HEIGHT
+    _row_area = canvas_h - TITLE_H - FOOTER_H
+    _row_h = _row_area // ROW_COUNT
+    _photo_size = int(_row_h * 0.70)
+
     db = load_players()
     if extra_players:
         existing_ids = {p["id"] for p in db}
@@ -254,7 +260,7 @@ def generate_card(
             players.append(p)
 
     # ── Canvas: background image ──
-    canvas = _load_background(background).convert("RGBA")
+    canvas = _load_background(background, height=canvas_h).convert("RGBA")
     is_light = background in LIGHT_BACKGROUNDS
 
     # ── Top gradient overlay ──
@@ -277,7 +283,7 @@ def generate_card(
         alpha = int(100 * (y / 160))
         r, g, b, _ = (*fill_color[:3], 0)
         ImageDraw.Draw(bot_grad).line([(0, y), (WIDTH, y)], fill=(r, g, b, alpha))
-    canvas.alpha_composite(bot_grad, (0, HEIGHT - 160))
+    canvas.alpha_composite(bot_grad, (0, canvas_h - 160))
 
     draw = ImageDraw.Draw(canvas)
 
@@ -311,12 +317,12 @@ def generate_card(
     meta_font  = _font(28)
     stats_font = _font(30)
 
-    PHOTO_SIZE = int(ROW_H * 0.70)
+    PHOTO_SIZE = _photo_size
     RANK_W     = 100
 
     for i, player in enumerate(players):
-        row_y  = TITLE_H + i * ROW_H + ROW_GAP // 2
-        row_h  = ROW_H - ROW_GAP
+        row_y  = TITLE_H + i * _row_h + ROW_GAP // 2
+        row_h  = _row_h - ROW_GAP
         is_top = i == 0
 
         # Panel background
@@ -434,7 +440,7 @@ def generate_card(
 
     total_w    = icon_w + gap + t_w
     sx         = (WIDTH - total_w) // 2
-    iy         = HEIGHT - FOOTER_H + (FOOTER_H - icon_h) // 2
+    iy         = canvas_h - FOOTER_H + (FOOTER_H - icon_h) // 2
 
     # Two overlapping mountain peaks drawn on a transparent layer
     ix = sx

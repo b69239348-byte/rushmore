@@ -28,6 +28,22 @@ def test_generate_card_with_game_stats_runs_without_error():
     assert os.path.getsize(out) > 10_000
 
 
+def test_generate_card_feed_format_produces_correct_dimensions():
+    """generate_card() with card_format='feed' must produce 1080x1350 PNG."""
+    import tempfile
+    from pathlib import Path
+    from PIL import Image
+
+    players = ["LeBron James", "Michael Jordan", "Kobe Bryant", "Magic Johnson", "Larry Bird"]
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+        out = tmp.name
+
+    generate_card(players, card_format="feed", output_path=out)
+    img = Image.open(out)
+    assert img.size == (1080, 1350), f"Expected (1080, 1350), got {img.size}"
+    Path(out).unlink()
+
+
 def test_fetch_top5_returns_five_players():
     """fetch_top5_scorers() should return exactly 5 player dicts with required keys."""
     from daily_top5 import fetch_top5_scorers
