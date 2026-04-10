@@ -11,6 +11,11 @@ export const TEAM_NBA_IDS: Record<string, number> = {
   TOR: 1610612761, UTA: 1610612762, WAS: 1610612764,
 };
 
+// Local logos for defunct teams (served from /public/team-logos/)
+const LOCAL_LOGOS: Record<string, string> = {
+  SEA: "/team-logos/SEA.svg",
+};
+
 // Historical abbreviations → current franchise abbreviation
 const ABBR_ALIASES: Record<string, string> = {
   UTH: "UTA", SAN: "SAS", NJN: "BKN", NJD: "BKN",
@@ -30,6 +35,7 @@ const ABBR_ALIASES: Record<string, string> = {
 export function getTeamLogoUrl(abbr: string | null | undefined): string | null {
   if (!abbr) return null;
   const upper = abbr.toUpperCase();
+  if (LOCAL_LOGOS[upper]) return LOCAL_LOGOS[upper];
   const resolved = ABBR_ALIASES[upper] ?? upper;
   const id = TEAM_NBA_IDS[resolved];
   if (!id) return null;
