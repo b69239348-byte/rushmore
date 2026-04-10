@@ -16,6 +16,7 @@ export default function FreestylePage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [cardTitle, setCardTitle] = useState("");
+  const [lastPlayerIds, setLastPlayerIds] = useState<number[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const BACKGROUNDS_POOL = [
@@ -87,6 +88,7 @@ export default function FreestylePage() {
   const handleBuildCard = useCallback(async () => {
     const playerIds = slots.filter(Boolean).map((p) => (p as Player).id);
     if (playerIds.length === 0) return;
+    setLastPlayerIds(playerIds);
     setGenerating(true);
     try {
       const title = cardTitle.trim() || "MY TOP 5";
@@ -198,7 +200,14 @@ export default function FreestylePage() {
       </div>
 
       {previewUrl && (
-        <CardPreview url={previewUrl} onClose={() => setPreviewUrl(null)} />
+        <CardPreview
+          url={previewUrl}
+          onClose={() => setPreviewUrl(null)}
+          regenerate={async (format) => {
+            const title = cardTitle.trim() || "MY TOP 5";
+            return generateCard(lastPlayerIds, title.toUpperCase(), "FREESTYLE", randomBackground(), format);
+          }}
+        />
       )}
     </div>
   );

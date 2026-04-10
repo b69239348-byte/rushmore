@@ -36,6 +36,7 @@ export function SplitCategoryPage({ title, categories, showBuilder = false }: Sp
   const [slots, setSlots] = useState<(Player | null)[]>([null, null, null, null, null]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [lastPlayerIds, setLastPlayerIds] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   const active = categories[activeIndex];
@@ -99,6 +100,7 @@ export function SplitCategoryPage({ title, categories, showBuilder = false }: Sp
   const handleBuildCard = useCallback(async () => {
     const playerIds = slots.filter(Boolean).map((p) => (p as Player).id);
     if (playerIds.length === 0) return;
+    setLastPlayerIds(playerIds);
     setGenerating(true);
     try {
       const blob = await generateCard(
@@ -195,7 +197,19 @@ export function SplitCategoryPage({ title, categories, showBuilder = false }: Sp
       )}
 
       {previewUrl && (
-        <CardPreview url={previewUrl} onClose={() => setPreviewUrl(null)} />
+        <CardPreview
+          url={previewUrl}
+          onClose={() => setPreviewUrl(null)}
+          regenerate={async (format) => {
+            return generateCard(
+              lastPlayerIds,
+              `MY ${active.label.toUpperCase()}`,
+              data?.subtitle || active.cardSubtitle,
+              randomBackground(),
+              format
+            );
+          }}
+        />
       )}
     </div>
   );

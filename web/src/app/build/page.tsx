@@ -12,6 +12,7 @@ export default function BuildPage() {
   const [slots, setSlots] = useState<(Player | null)[]>([null, null, null, null, null]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [lastPlayerIds, setLastPlayerIds] = useState<number[]>([]);
   const [query, setQuery] = useState("");
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,6 +72,7 @@ export default function BuildPage() {
   const handleBuildCard = useCallback(async () => {
     const playerIds = slots.filter(Boolean).map((p) => (p as Player).id);
     if (playerIds.length === 0) return;
+    setLastPlayerIds(playerIds);
     setGenerating(true);
     try {
       const blob = await generateCard(playerIds, "MY TOP 5", undefined);
@@ -160,7 +162,13 @@ export default function BuildPage() {
       </div>
 
       {previewUrl && (
-        <CardPreview url={previewUrl} onClose={() => setPreviewUrl(null)} />
+        <CardPreview
+          url={previewUrl}
+          onClose={() => setPreviewUrl(null)}
+          regenerate={async (format) => {
+            return generateCard(lastPlayerIds, "MY TOP 5", undefined, undefined, format);
+          }}
+        />
       )}
     </div>
   );
