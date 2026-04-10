@@ -1,5 +1,56 @@
 {
   "date": "2026-04-09",
   "games": true,
-  "players": []
+  "players": [
+    {
+      "player_id": 1627742,
+      "player_name": "Brandon Ingram",
+      "team": "TOR",
+      "pts": 38,
+      "reb": 7,
+      "ast": 7,
+      "stl": 1,
+      "blk": 0
+    },
+    {
+      "player_id": 1630200,
+      "player_name": "Tre Jones",
+      "team": "CHI",
+      "pts": 31,
+      "reb": 6,
+      "ast": 3,
+      "stl": 1,
+      "blk": 0
+    },
+    {
+      "player_id": 201142,
+      "player_name": "Kevin Durant",
+      "team": "HOU",
+      "pts": 29,
+      "reb": 7,
+      "ast": 5,
+      "stl": 0,
+      "blk": 0
+    },
+    {
+      "player_id": 1629012,
+      "player_name": "Collin Sexton",
+      "team": "CHI",
+      "pts": 27,
+      "reb": 3,
+      "ast": 2,
+      "stl": 3,
+      "blk": 0
+    },
+    {
+      "player_id": 1631159,
+      "player_name": "Leonard Miller",
+      "team": "CHI",
+      "pts": 26,
+      "reb": 11,
+      "ast": 3,
+      "stl": 1,
+      "blk": 1
+    }
+  ]
 }
