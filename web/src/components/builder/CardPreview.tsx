@@ -185,6 +185,9 @@ export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
               <Download className="h-4 w-4" />
               Save to Device
             </button>
+            <p className="text-center text-xs text-white/30 pt-1">
+              Tag <span className="text-white/50">@rushmore.cards</span> on Instagram &amp; TikTok
+            </p>
           </div>
         ) : (
           /* Desktop: download + X */
@@ -205,6 +208,9 @@ export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
             </button>
             <p className="text-center text-xs text-white/30">
               Image saves automatically — attach it to your post in X
+            </p>
+            <p className="text-center text-xs text-white/30">
+              Also on Instagram &amp; TikTok? Tag <span className="text-white/50">@rushmore.cards</span>
             </p>
             {canCopyImage && (
               <button
