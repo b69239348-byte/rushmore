@@ -97,7 +97,8 @@ export async function generateCard(
   playerIds: number[],
   title?: string,
   subtitle?: string,
-  background?: string
+  background?: string,
+  format: "story" | "feed" = "story"
 ): Promise<Blob> {
   const res = await fetch(`${API_BASE}/generate`, {
     method: "POST",
@@ -106,6 +107,7 @@ export async function generateCard(
       player_ids: playerIds,
       title: title || "MY MT. RUSHMORE",
       subtitle: "",
+      format,
       ...(background && { background }),
     }),
   });
