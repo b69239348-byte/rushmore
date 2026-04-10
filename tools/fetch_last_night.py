@@ -90,9 +90,22 @@ def fetch_top5():
                 _download_headshot(p["player_id"], p["player_name"])
         p["in_db"] = True  # always true now — either was there or just added
 
-    if added:
+    # Update main_team for existing players if they've changed teams
+    db_by_id = {p["id"]: p for p in db}
+    team_updated = []
+    for p in top5:
+        entry = db_by_id.get(p["player_id"])
+        if entry and entry.get("main_team") != p["team"]:
+            log(f"Updating main_team for {p['player_name']}: {entry['main_team']} → {p['team']}")
+            entry["main_team"] = p["team"]
+            team_updated.append(p["player_name"])
+
+    if added or team_updated:
         db_path.write_text(json.dumps(db, indent=2, ensure_ascii=False))
-        log(f"players.json updated with: {added}")
+        if added:
+            log(f"players.json updated with new players: {added}")
+        if team_updated:
+            log(f"players.json updated main_team for: {team_updated}")
 
     return {"date": date_label, "games": True, "players": top5}
 
