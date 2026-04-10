@@ -232,12 +232,16 @@ def generate_card(
     game_stats=None,          # {player_id: {pts, reb, ast, stl, blk}}; overrides season averages
     card_format: str = "story",
 ):
-    _FORMATS = {"story": HEIGHT, "feed": 1350}
+    _FORMATS = {"story": HEIGHT, "feed": 1080}
     if card_format not in _FORMATS:
         raise ValueError(f"card_format must be 'story' or 'feed', got {card_format!r}")
-    canvas_h = _FORMATS[card_format]
-    _row_area = canvas_h - TITLE_H - FOOTER_H
-    _row_h = _row_area // ROW_COUNT
+    canvas_h  = _FORMATS[card_format]
+    _scale    = canvas_h / HEIGHT          # 1.0 for story, ~0.5625 for feed
+    _title_h  = int(TITLE_H * _scale)     # scales 210 → 118
+    _footer_h = int(FOOTER_H * _scale)    # scales 80  → 45
+    _row_gap  = max(4, int(ROW_GAP * _scale))
+    _row_area = canvas_h - _title_h - _footer_h
+    _row_h    = _row_area // ROW_COUNT
     _photo_size = int(_row_h * 0.70)
 
     db = load_players()
@@ -267,15 +271,15 @@ def generate_card(
     is_light = background in LIGHT_BACKGROUNDS
 
     # ── Top gradient overlay ──
-    grad = Image.new("RGBA", (WIDTH, TITLE_H + 40), (0, 0, 0, 0))
+    _grad_top = _title_h + 40
+    grad = Image.new("RGBA", (WIDTH, _grad_top), (0, 0, 0, 0))
     if is_light:
-        # White overlay for light backgrounds — keeps brightness, dark text on top
-        for y in range(TITLE_H + 40):
-            alpha = int(200 * (1 - y / (TITLE_H + 40)) + 40)
+        for y in range(_grad_top):
+            alpha = int(200 * (1 - y / _grad_top) + 40)
             ImageDraw.Draw(grad).line([(0, y), (WIDTH, y)], fill=(255, 255, 255, alpha))
     else:
-        for y in range(TITLE_H + 40):
-            alpha = int(180 * (1 - y / (TITLE_H + 40)) + 60)
+        for y in range(_grad_top):
+            alpha = int(180 * (1 - y / _grad_top) + 60)
             ImageDraw.Draw(grad).line([(0, y), (WIDTH, y)], fill=(4, 8, 18, alpha))
     canvas.alpha_composite(grad, (0, 0))
 
@@ -297,8 +301,8 @@ def generate_card(
     accent_alpha = (*DARK_NAVY, 60) if is_light else (*TEAL, 80)
 
     # ── Title ──
-    title_font = _font_impact(96)
-    sub_font   = _font(36)
+    title_font = _font_impact(max(54, int(96 * _scale)))
+    sub_font   = _font(max(18, int(36 * _scale)))
 
     title_color    = DARK_NAVY if is_light else WHITE
     subtitle_color = DARK_GRAY if is_light else (200, 200, 200)
@@ -307,26 +311,25 @@ def generate_card(
     t_up = title.upper()
     t_bbox = draw.textbbox((0, 0), t_up, font=title_font)
     t_w = t_bbox[2] - t_bbox[0]
-    # Center title vertically in TITLE_H area
-    title_y = (TITLE_H - (t_bbox[3] - t_bbox[1])) // 2
+    title_y = (_title_h - (t_bbox[3] - t_bbox[1])) // 2
     draw.text(((WIDTH - t_w) // 2, title_y), t_up, fill=title_color, font=title_font)
 
     # ── Thin divider under title ──
-    div_y = TITLE_H - 10
+    div_y = _title_h - 10
     draw.rectangle([PAD, div_y, WIDTH - PAD, div_y + 2], fill=divider_color)
 
     # ── Player rows ──
-    rank_font  = _font(80, bold=True)
-    name_font  = _font(46, bold=True)
-    meta_font  = _font(28)
-    stats_font = _font(30)
+    rank_font  = _font(max(40, int(80 * _scale)), bold=True)
+    name_font  = _font(max(24, int(46 * _scale)), bold=True)
+    meta_font  = _font(max(14, int(28 * _scale)))
+    stats_font = _font(max(14, int(30 * _scale)))
 
     PHOTO_SIZE = _photo_size
-    RANK_W     = 100
+    RANK_W     = max(60, int(100 * _scale))
 
     for i, player in enumerate(players):
-        row_y  = TITLE_H + i * _row_h + ROW_GAP // 2
-        row_h  = _row_h - ROW_GAP
+        row_y  = _title_h + i * _row_h + _row_gap // 2
+        row_h  = _row_h - _row_gap
         is_top = i == 0
 
         # Panel background
@@ -388,7 +391,10 @@ def generate_card(
             name = name[:-2] + "…"
             n_bbox = draw.textbbox((0, 0), name, font=name_font)
 
-        text_block_h = 50 + 8 + 28 + 8 + 32  # name + gap + meta + gap + stats
+        _name_h  = max(24, int(50 * _scale))
+        _meta_h  = max(14, int(28 * _scale))
+        _stats_h = max(14, int(32 * _scale))
+        text_block_h = _name_h + 8 + _meta_h + 8 + _stats_h
         text_y = row_y + (row_h - text_block_h) // 2
 
         name_color = WHITE if not is_top else WHITE
@@ -402,7 +408,7 @@ def generate_card(
         if team_abbr:
             meta_parts.append(_ABBR_ALIASES.get(team_abbr.upper(), team_abbr.upper()))
         meta = "  ·  ".join(meta_parts) if meta_parts else ""
-        meta_y = text_y + 50 + 8
+        meta_y = text_y + _name_h + 8
         draw.text((text_x, meta_y), meta, fill=GRAY, font=meta_font)
 
         # Stats line — prefer current season, fall back to career
@@ -428,13 +434,14 @@ def generate_card(
             else:
                 fourth = f"{bpg} BPG"
             stats = f"{ppg} PPG  ·  {rpg} RPG  ·  {apg} APG  ·  {fourth}"
-        stats_y = meta_y + 28 + 8
+        stats_y = meta_y + _meta_h + 8
         draw.text((text_x, stats_y), stats, fill=GRAY, font=stats_font)
 
     # ── Footer: mountain icon + RUSHMORE text ──
-    footer_font = _font(30, bold=True)
+    footer_font = _font(max(16, int(30 * _scale)), bold=True)
     label      = "RUSHMORE"
-    icon_h, icon_w = 28, 34
+    icon_h = max(16, int(28 * _scale))
+    icon_w = max(20, int(34 * _scale))
     gap        = 9
 
     draw       = ImageDraw.Draw(canvas)
@@ -444,7 +451,7 @@ def generate_card(
 
     total_w    = icon_w + gap + t_w
     sx         = (WIDTH - total_w) // 2
-    iy         = canvas_h - FOOTER_H + (FOOTER_H - icon_h) // 2
+    iy         = canvas_h - _footer_h + (_footer_h - icon_h) // 2
 
     # Two overlapping mountain peaks drawn on a transparent layer
     ix = sx
