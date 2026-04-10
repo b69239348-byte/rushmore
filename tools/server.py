@@ -322,6 +322,7 @@ class GenerateRequest(BaseModel):
     title: str = "MY MT. RUSHMORE"
     subtitle: str = "ALL-TIME GREATEST"
     background: str = "night_court_outdoor"
+    format: str = "story"
 
 
 class GenerateTeamsRequest(BaseModel):
@@ -401,7 +402,7 @@ def generate(req: GenerateRequest):
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         output_path = tmp.name
 
-    generate_card(queries, title=req.title, subtitle=req.subtitle, output_path=output_path, background=background, extra_players=get_live_players())
+    generate_card(queries, title=req.title, subtitle=req.subtitle, output_path=output_path, background=background, extra_players=get_live_players(), card_format=req.format)
     return FileResponse(output_path, media_type="image/png", filename="rushmore.png")
 
 
