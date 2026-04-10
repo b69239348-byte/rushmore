@@ -237,10 +237,12 @@ def generate_card(
         raise ValueError(f"card_format must be 'story' or 'feed', got {card_format!r}")
     canvas_h  = _FORMATS[card_format]
     _scale    = canvas_h / HEIGHT          # 1.0 for story, ~0.5625 for feed
+    # Instagram safe zone: keep content 80px away from top/bottom edges for feed
+    _v_inset  = 80 if card_format == "feed" else 0
     _title_h  = int(TITLE_H * _scale)     # scales 210 → 118
     _footer_h = int(FOOTER_H * _scale)    # scales 80  → 45
     _row_gap  = max(4, int(ROW_GAP * _scale))
-    _row_area = canvas_h - _title_h - _footer_h
+    _row_area = canvas_h - _v_inset * 2 - _title_h - _footer_h
     _row_h    = _row_area // ROW_COUNT
     _photo_size = int(_row_h * 0.70)
 
@@ -311,11 +313,11 @@ def generate_card(
     t_up = title.upper()
     t_bbox = draw.textbbox((0, 0), t_up, font=title_font)
     t_w = t_bbox[2] - t_bbox[0]
-    title_y = (_title_h - (t_bbox[3] - t_bbox[1])) // 2
+    title_y = _v_inset + (_title_h - (t_bbox[3] - t_bbox[1])) // 2
     draw.text(((WIDTH - t_w) // 2, title_y), t_up, fill=title_color, font=title_font)
 
     # ── Thin divider under title ──
-    div_y = _title_h - 10
+    div_y = _v_inset + _title_h - 10
     draw.rectangle([PAD, div_y, WIDTH - PAD, div_y + 2], fill=divider_color)
 
     # ── Player rows ──
@@ -328,7 +330,7 @@ def generate_card(
     RANK_W     = max(60, int(100 * _scale))
 
     for i, player in enumerate(players):
-        row_y  = _title_h + i * _row_h + _row_gap // 2
+        row_y  = _v_inset + _title_h + i * _row_h + _row_gap // 2
         row_h  = _row_h - _row_gap
         is_top = i == 0
 
@@ -451,7 +453,7 @@ def generate_card(
 
     total_w    = icon_w + gap + t_w
     sx         = (WIDTH - total_w) // 2
-    iy         = canvas_h - _footer_h + (_footer_h - icon_h) // 2
+    iy         = canvas_h - _v_inset - _footer_h + (_footer_h - icon_h) // 2
 
     # Two overlapping mountain peaks drawn on a transparent layer
     ix = sx
