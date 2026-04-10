@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: "Rushmore — Build Your NBA Mt. Rushmore",
     description:
       "Every NBA fan has an opinion. Build your all-time Top 5, settle the debate, and share it on your socials.",
-    url: "https://rushmore.app",
+    url: "https://rushmore.cards",
     siteName: "Rushmore",
     images: [
       {

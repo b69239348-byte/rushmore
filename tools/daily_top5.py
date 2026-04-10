@@ -86,7 +86,7 @@ def _build_caption(players: list[dict], game_date: date) -> str:
         highlights,
         "",
         "Would any of them make your Mt. Rushmore?",
-        "Build your list 👉 rushmore.app",
+        "Build your list 👉 rushmore.cards",
         "",
         "#NBA #Basketball #Rushmore",
     ]

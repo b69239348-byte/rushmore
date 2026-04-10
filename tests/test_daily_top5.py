@@ -93,5 +93,5 @@ def test_generate_daily_card_creates_output_files(tmp_path):
     assert (out_dir / "caption.txt").exists()
     caption = (out_dir / "caption.txt").read_text(encoding="utf-8")
     assert "Top Performers" in caption
-    assert "rushmore.app" in caption
+    assert "rushmore.cards" in caption
     assert "PTS" in caption

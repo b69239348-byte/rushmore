@@ -101,7 +101,7 @@ export function CardPreview({ url, onClose, regenerate }: CardPreviewProps) {
 
   const handleXShare = () => {
     handleSave();
-    const text = encodeURIComponent("My NBA Mount Rushmore 🏀 — built on rushmore.gg");
+    const text = encodeURIComponent("My NBA Mount Rushmore 🏀 — built on rushmore.cards");
     window.open(`https://x.com/intent/tweet?text=${text}`, "_blank");
   };
 
