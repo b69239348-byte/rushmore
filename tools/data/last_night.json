@@ -1,56 +1,61 @@
 {
-  "date": "2026-04-09",
+  "date": "2026-04-10",
   "games": true,
   "players": [
     {
-      "player_id": 1627742,
-      "player_name": "Brandon Ingram",
-      "team": "TOR",
-      "pts": 38,
-      "reb": 7,
-      "ast": 7,
+      "player_id": 1641705,
+      "player_name": "Victor Wembanyama",
+      "team": "SAS",
+      "pts": 40,
+      "reb": 13,
+      "ast": 5,
       "stl": 1,
-      "blk": 0
+      "blk": 2,
+      "in_db": true
     },
     {
-      "player_id": 1630200,
-      "player_name": "Tre Jones",
-      "team": "CHI",
-      "pts": 31,
-      "reb": 6,
-      "ast": 3,
-      "stl": 1,
-      "blk": 0
+      "player_id": 1642847,
+      "player_name": "Jeremiah Fears",
+      "team": "NOP",
+      "pts": 36,
+      "reb": 3,
+      "ast": 6,
+      "stl": 3,
+      "blk": 0,
+      "in_db": true
     },
     {
-      "player_id": 201142,
-      "player_name": "Kevin Durant",
+      "player_id": 1631260,
+      "player_name": "AJ Green",
+      "team": "MIL",
+      "pts": 35,
+      "reb": 5,
+      "ast": 4,
+      "stl": 2,
+      "blk": 0,
+      "in_db": true
+    },
+    {
+      "player_id": 1641708,
+      "player_name": "Amen Thompson",
       "team": "HOU",
-      "pts": 29,
-      "reb": 7,
+      "pts": 34,
+      "reb": 8,
       "ast": 5,
       "stl": 0,
-      "blk": 0
+      "blk": 0,
+      "in_db": true
     },
     {
-      "player_id": 1629012,
-      "player_name": "Collin Sexton",
-      "team": "CHI",
-      "pts": 27,
-      "reb": 3,
-      "ast": 2,
-      "stl": 3,
-      "blk": 0
-    },
-    {
-      "player_id": 1631159,
-      "player_name": "Leonard Miller",
-      "team": "CHI",
-      "pts": 26,
-      "reb": 11,
-      "ast": 3,
-      "stl": 1,
-      "blk": 1
+      "player_id": 1642843,
+      "player_name": "Cooper Flagg",
+      "team": "DAL",
+      "pts": 33,
+      "reb": 6,
+      "ast": 5,
+      "stl": 0,
+      "blk": 0,
+      "in_db": true
     }
   ]
 }
