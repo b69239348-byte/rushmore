@@ -182,7 +182,7 @@ _ABBR_ALIASES = {
     "NOH": "NOP", "NOK": "NOP", "NOJ": "NOP",
     "PHW": "GSW", "SFW": "GSW", "GOS": "GSW",
     "VAN": "MEM", "SDC": "LAC", "SDR": "LAC",
-    "SEA": "OKC", "KCK": "SAC",
+    "KCK": "SAC",
     "CHH": "CHA", "CHO": "CHA",
     "CAP": "WAS", "BLT": "WAS",
     "STL": "ATL", "MIH": "LAL", "MNL": "LAL",
