@@ -116,7 +116,7 @@ def generate_playoff_card(
     draw = ImageDraw.Draw(canvas)
 
     # ── Title block ───────────────────────────────────────────────────────────
-    title_text = f"PLAYOFFS R{round_num} — {conference.upper()}"
+    title_text = f"Playoffs R{round_num} — {conference.upper()}"
     series_text = _series_label(home_wins, away_wins, home_team, away_team)
 
     title_font  = _font_impact(max(52, int(88 * _scale)))
