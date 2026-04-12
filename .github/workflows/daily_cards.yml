@@ -1,0 +1,36 @@
+name: Daily Card Pipeline
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # 06:00 UTC = 08:00 CET
+  workflow_dispatch:       # Allow manual triggering for testing
+
+jobs:
+  generate-cards:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install --upgrade pip && pip install pillow nba_api pyyaml python-dotenv requests
+
+      - name: Run daily card pipeline
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 tools/daily_pipeline.py
+
+      - name: Upload output as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-cards-${{ github.run_id }}
+          path: output/
+          retention-days: 7
