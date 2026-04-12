@@ -1,6 +1,7 @@
 """Unit tests for caption_templates.py (TDD)."""
 
 import sys
+import yaml
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "tools"))
@@ -99,3 +100,44 @@ def test_fetch_playoff_bracket_returns_list():
         assert "home_wins" in matchup
         assert "away_wins" in matchup
         assert "conference" in matchup
+
+
+def test_calendar_loads_20_days():
+    cal_path = Path(__file__).parent.parent / "content" / "calendar.yaml"
+    data = yaml.safe_load(cal_path.read_text())
+    assert len(data["days"]) == 20
+
+
+def test_calendar_all_days_have_date_and_planned():
+    cal_path = Path(__file__).parent.parent / "content" / "calendar.yaml"
+    data = yaml.safe_load(cal_path.read_text())
+    for day in data["days"]:
+        assert "date" in day, f"Missing date: {day}"
+        assert "planned" in day, f"Missing planned: {day}"
+        assert "card_type" in day["planned"], f"Missing card_type: {day}"
+
+
+def test_calendar_debate_cards_have_5_items():
+    cal_path = Path(__file__).parent.parent / "content" / "calendar.yaml"
+    data = yaml.safe_load(cal_path.read_text())
+    for day in data["days"]:
+        planned = day["planned"]
+        if planned["card_type"] == "debate":
+            assert "items" in planned, f"Debate card missing items: {day['date']}"
+            assert len(planned["items"]) == 5, f"Debate card needs 5 items: {day['date']}"
+
+
+def test_all_card_types_produce_x_under_280_chars():
+    """All caption types produce X captions under 280 characters."""
+    test_cases = [
+        ("top5",            {"players": [{"name": "Luka Doncic", "ppg": 32.4, "team": "DAL"}], "date": "2026-04-12"}),
+        ("mvp_race",        {"players": [{"name": "SGA", "ppg": 31.2, "eff": 28.5, "team": "OKC"}], "date": "2026-04-12"}),
+        ("debate",          {"title": "Regular Season Frauds", "date": "2026-04-17"}),
+        ("playoff_matchup", {"matchup": {"home_team": "OKC Thunder", "away_team": "Dallas Mavericks", "home_wins": 2, "away_wins": 1}, "date": "2026-04-19"}),
+        ("award",           {"players": [{"name": "Chet Holmgren", "team": "OKC", "ppg": 18.2}], "award_type": "mip", "date": "2026-04-24"}),
+        ("scoring_title",   {"players": [{"name": "SGA", "ppg": 31.2, "team": "OKC"}], "date": "2026-04-12"}),
+        ("roty",            {"players": [{"name": "Victor Wembanyama", "ppg": 27.0, "team": "SAS"}], "date": "2026-04-13"}),
+    ]
+    for card_type, kwargs in test_cases:
+        captions = get_captions(card_type, **kwargs)
+        assert len(captions["x"]) <= 280, f"X caption too long for {card_type}: {len(captions['x'])} chars\n{captions['x']}"
