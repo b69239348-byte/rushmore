@@ -1,0 +1,224 @@
+days:
+  - date: "2026-04-11"
+    phase: "Regular Season"
+    planned:
+      card_type: mvp_race
+      title: "2025-26 MVP Race"
+      subtitle: "Top 5 Candidates"
+
+  - date: "2026-04-12"
+    phase: "Regular Season"
+    planned:
+      card_type: scoring_title
+      title: "Scoring Title Race"
+      subtitle: "Top 5 by PPG"
+
+  - date: "2026-04-13"
+    phase: "Last Day Regular Season"
+    planned:
+      card_type: roty
+      title: "ROTY Race"
+      subtitle: "Top 5 Rookies by PPG"
+
+  - date: "2026-04-14"
+    phase: "Play-In Hype"
+    planned:
+      card_type: debate
+      title: "Play-In Bracket"
+      subtitle: "Who Actually Makes the Playoffs?"
+      items:
+        - "Golden State Warriors survive the 9/10 game"
+        - "Memphis Grizzlies choke the 7/8 matchup"
+        - "Dallas Mavericks sneak in as the 8 seed"
+        - "New Orleans Pelicans finally healthy — dangerous"
+        - "Atlanta Hawks run out of gas in the play-in"
+
+  - date: "2026-04-15"
+    phase: "Play-In"
+    planned:
+      card_type: debate
+      title: "Most Likely to Ghost"
+      subtitle: "Disappear in the Playoffs"
+      items:
+        - "Trae Young"
+        - "Zach LaVine"
+        - "Devin Booker"
+        - "Pascal Siakam"
+        - "Darius Garland"
+
+  - date: "2026-04-16"
+    phase: "Play-In"
+    planned:
+      card_type: award
+      title: "All-NBA First Team"
+      subtitle: "2025-26 Season"
+      award_type: all_nba
+      auto_data: false
+      items:
+        - "Nikola Jokic"
+        - "Shai Gilgeous-Alexander"
+        - "Victor Wembanyama"
+        - "Giannis Antetokounmpo"
+        - "LeBron James"
+
+  - date: "2026-04-17"
+    phase: "Play-In"
+    planned:
+      card_type: debate
+      title: "Regular Season Frauds"
+      subtitle: "Hot Take: Who Won't Show Up"
+      items:
+        - "Trae Young"
+        - "Karl-Anthony Towns"
+        - "Zach LaVine"
+        - "Darius Garland"
+        - "Jordan Poole"
+
+  - date: "2026-04-18"
+    phase: "Pre-Playoffs"
+    planned:
+      card_type: debate
+      title: "Series I Can't Miss"
+      subtitle: "Playoffs Round 1 Preview"
+      items:
+        - "OKC vs Memphis — young dogs go to war"
+        - "Boston vs Miami — Heat culture one last time?"
+        - "Denver vs LA Clippers — Jokic vs Kawhi 2.0"
+        - "Golden State vs Minnesota — Curry vs ANT"
+        - "Milwaukee vs Cleveland — Giannis redemption arc"
+
+  - date: "2026-04-19"
+    phase: "Playoffs R1"
+    planned:
+      card_type: playoff_matchup
+      matchup_index: 0
+
+  - date: "2026-04-20"
+    phase: "Playoffs R1"
+    planned:
+      card_type: debate
+      title: "All-Time Playoff Legends"
+      subtitle: "Top 5 Performers in NBA History"
+      items:
+        - "Michael Jordan — 33.4 PPG, 6 Finals, 6 Finals MVPs"
+        - "LeBron James — 28.8 PPG, 10 Finals, transcendent IQ"
+        - "Shaquille O'Neal — dominant force, 3-peat unstoppable"
+        - "Kobe Bryant — 25.6 PPG, clutch when it mattered most"
+        - "Magic Johnson — 19.5 PPG, 12.3 APG, invented showtime"
+
+  - date: "2026-04-21"
+    phase: "Playoffs R1"
+    planned:
+      card_type: debate
+      title: "1v1 Tournament"
+      subtitle: "Who Would Win?"
+      items:
+        - "Shai Gilgeous-Alexander"
+        - "Luka Doncic"
+        - "Victor Wembanyama"
+        - "Jayson Tatum"
+        - "Anthony Edwards"
+
+  - date: "2026-04-22"
+    phase: "Playoffs R1"
+    planned:
+      card_type: playoff_matchup
+      matchup_index: 1
+
+  - date: "2026-04-23"
+    phase: "Playoffs R1"
+    planned:
+      card_type: debate
+      title: "Wemby 2026 vs LeBron 2016"
+      subtitle: "Who Wins the Finals?"
+      items:
+        - "Wemby drops 35/12/8 — LeBron's 2016 was different"
+        - "LeBron's IQ and leadership still unmatched at his peak"
+        - "Wemby's length changes the game — blocks everything"
+        - "LeBron dragged a Kyrie-less squad — Wemby has more help"
+        - "Peak LeBron wins — but Wemby's era is just getting started"
+
+  - date: "2026-04-24"
+    phase: "Playoffs R1"
+    planned:
+      card_type: award
+      title: "Most Improved Player"
+      subtitle: "2025-26 Award"
+      award_type: mip
+      auto_data: true
+
+  - date: "2026-04-25"
+    phase: "Playoffs R1"
+    planned:
+      card_type: debate
+      title: "Street Team Coaches"
+      subtitle: "Top 5 I'd Hire for a 5v5"
+      items:
+        - "Erik Spoelstra"
+        - "Gregg Popovich"
+        - "Doc Rivers"
+        - "Mark Daigneault"
+        - "Joe Mazzulla"
+
+  - date: "2026-04-26"
+    phase: "Playoffs R1"
+    planned:
+      card_type: award
+      title: "Most Valuable Player"
+      subtitle: "2025-26 Award"
+      award_type: mvp
+      auto_data: true
+
+  - date: "2026-04-27"
+    phase: "Playoffs R1"
+    planned:
+      card_type: debate
+      title: "Franchises to Build Around"
+      subtitle: "Top 5 Right Now"
+      items:
+        - "Oklahoma City Thunder"
+        - "San Antonio Spurs"
+        - "Boston Celtics"
+        - "Denver Nuggets"
+        - "Minnesota Timberwolves"
+
+  - date: "2026-04-28"
+    phase: "Playoffs R1"
+    planned:
+      card_type: award
+      title: "All-Rookie First Team"
+      subtitle: "2025-26 Season"
+      award_type: all_rookie
+      auto_data: false
+      items:
+        - "Stephon Castle"
+        - "Zaccharie Risacher"
+        - "Alex Sarr"
+        - "Dalton Knecht"
+        - "Nikola Topic"
+
+  - date: "2026-04-29"
+    phase: "Playoffs R1"
+    planned:
+      card_type: debate
+      title: "Most Overrated Players"
+      subtitle: "Hot Take Season"
+      items:
+        - "Ben Simmons"
+        - "Zach LaVine"
+        - "Bradley Beal"
+        - "Jordan Poole"
+        - "Darius Garland"
+
+  - date: "2026-04-30"
+    phase: "Playoffs R1"
+    planned:
+      card_type: debate
+      title: "Build Your Playoff Bracket"
+      subtitle: "rushmore.cards"
+      items:
+        - "Which team gets upset in Round 1?"
+        - "Who wins the West — OKC or Denver?"
+        - "Does Boston repeat or does someone stop them?"
+        - "Who's your dark horse Finals team?"
+        - "Which player goes full superstar mode this postseason?"
