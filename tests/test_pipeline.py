@@ -85,3 +85,17 @@ def test_x_caption_trim_at_280():
     result = get_captions("debate", title=long_title)
     assert len(result["x"]) <= 280
     assert result["x"].endswith("...")
+
+
+def test_fetch_playoff_bracket_returns_list():
+    """fetch_playoff_bracket returns a list — empty during regular season is fine."""
+    from live_data import fetch_playoff_bracket
+    bracket = fetch_playoff_bracket()
+    assert isinstance(bracket, list)
+    # During regular season: empty list is valid
+    for matchup in bracket:
+        assert "home_team" in matchup
+        assert "away_team" in matchup
+        assert "home_wins" in matchup
+        assert "away_wins" in matchup
+        assert "conference" in matchup

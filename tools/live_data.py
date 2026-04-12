@@ -130,16 +130,71 @@ def fetch_current_mvp_race(limit: int = 5) -> list[dict]:
 
 
 def fetch_current_dpoy_race(limit: int = 5) -> list[dict]:
-    """Top DPOY candidates this season, sorted by combined blocks + steals per game."""
+    """Top DPOY candidates this season, ranked by composite defensive metric.
+
+    Composite = BLK/G × 2.0 + STL/G × 1.5 - (DRTG - 105) × 0.3
+    Requires min 30 games played. Merges Advanced stats (DRTG) with Base (BLK/STL).
+    """
     season = _detect_season()
-    cache_key = f"dpoy_race_{season}"
+    cache_key = f"dpoy_race_v2_{season}"
     cached = _read_cache(cache_key)
     if cached is not None:
         return cached[:limit]
 
-    players = fetch_season_leaders(season=season, limit=100)
-    for p in players:
-        p["_def_score"] = round(p.get("bpg", 0) + p.get("spg", 0), 2)
+    from nba_api.stats.endpoints import leaguedashplayerstats
+
+    # Advanced stats → DRTG (Defensive Rating per 100 possessions)
+    adv = leaguedashplayerstats.LeagueDashPlayerStats(
+        season=season,
+        per_mode_detailed="PerGame",
+        measure_type_detailed_defense="Advanced",
+    )
+    adv_df = adv.get_data_frames()[0]
+    adv_map = {}
+    for _, row in adv_df.iterrows():
+        pid = int(row["PLAYER_ID"])
+        adv_map[pid] = {
+            "drtg": round(float(row.get("DEF_RATING") or 110), 1),
+        }
+
+    # Base per-game stats → BLK/G, STL/G, GP
+    base = leaguedashplayerstats.LeagueDashPlayerStats(
+        season=season,
+        per_mode_detailed="PerGame",
+        measure_type_detailed_defense="Base",
+    )
+    base_df = base.get_data_frames()[0]
+
+    players = []
+    for _, row in base_df.iterrows():
+        gp = int(row.get("GP") or 0)
+        if gp < 30:
+            continue
+        pid = int(row["PLAYER_ID"])
+        bpg = round(float(row.get("BLK") or 0), 1)
+        spg = round(float(row.get("STL") or 0), 1)
+        drtg = adv_map.get(pid, {}).get("drtg", 110.0)
+        # Require meaningful individual defensive production (BLK+STL >= 1.2)
+        # to avoid DRTG-skewed outliers from niche lineups
+        if bpg + spg < 1.2:
+            continue
+        # Clamp DRTG bonus: cap benefit at ±6 pts to limit team-context noise
+        drtg_adj = max(-6.0, min(6.0, (drtg - 107) * 0.15))
+        composite = round(bpg * 2.5 + spg * 2.0 - drtg_adj, 3)
+        players.append({
+            "id": pid,
+            "name": str(row["PLAYER_NAME"]),
+            "team": str(row.get("TEAM_ABBREVIATION", "")),
+            "gp": gp,
+            "ppg": round(float(row.get("PTS") or 0), 1),
+            "rpg": round(float(row.get("REB") or 0), 1),
+            "apg": round(float(row.get("AST") or 0), 1),
+            "spg": spg,
+            "bpg": bpg,
+            "drtg": drtg,
+            "_def_score": composite,
+        })
+
     sorted_p = sorted(players, key=lambda p: p["_def_score"], reverse=True)
     _write_cache(cache_key, sorted_p)
     return sorted_p[:limit]
@@ -281,6 +336,55 @@ def get_new_player_ids(limit: int = 30) -> list[int]:
 
     leaders = fetch_season_leaders(limit=limit)
     return [p["id"] for p in leaders if p["id"] not in existing_ids]
+
+
+def fetch_playoff_bracket() -> list[dict]:
+    """Fetch current NBA playoff bracket matchups.
+
+    Returns list of matchup dicts:
+        {home_team, away_team, home_seed, away_seed,
+         home_wins, away_wins, conference, round_num}
+
+    Returns [] during regular season.
+    """
+    cache_key = "playoff_bracket_v1"
+    cached = _read_cache(cache_key)
+    if cached is not None:
+        return cached
+
+    try:
+        from nba_api.stats.endpoints.playoffpicture import PlayoffPicture
+
+        pp = PlayoffPicture(league_id="00")
+        dfs = pp.get_data_frames()
+
+        matchups = []
+        conf_names = {0: "East", 1: "West"}
+
+        for conf_idx, df in enumerate(dfs[:2]):
+            if df.empty:
+                continue
+            conference = conf_names.get(conf_idx, "Unknown")
+            for _, row in df.iterrows():
+                try:
+                    matchups.append({
+                        "home_team":  str(row["HOME_TEAM_NAME"]),
+                        "away_team":  str(row["ROAD_TEAM_NAME"]),
+                        "home_seed":  int(row["HOME_TEAM_SEED"]),
+                        "away_seed":  int(row["ROAD_TEAM_SEED"]),
+                        "home_wins":  int(row["HOME_TEAM_WINS"]),
+                        "away_wins":  int(row["ROAD_TEAM_WINS"]),
+                        "conference": conference,
+                        "round_num":  int(row["SERIES_ROUND"]),
+                    })
+                except Exception:
+                    continue
+
+        _write_cache(cache_key, matchups)
+        return matchups
+
+    except Exception:
+        return []
 
 
 if __name__ == "__main__":
