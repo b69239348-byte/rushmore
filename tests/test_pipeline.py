@@ -57,3 +57,31 @@ def test_playoff_matchup_captions():
     }
     result = get_captions("playoff_matchup", matchup=matchup)
     assert "Nuggets" in result["x"] or "Lakers" in result["x"] or "Denver" in result["x"] or "LA" in result["x"]
+
+
+def test_top5_injects_player_name():
+    players = [{"name": "Nikola Jokic", "ppg": 27.4, "team": "DEN"}]
+    result = get_captions("top5", players=players, date="2026-04-12")
+    assert "Nikola Jokic" in result["tiktok"]
+    assert "27.4" in result["tiktok"]
+
+
+def test_award_injects_player_name():
+    players = [{"name": "Herb Jones", "ppg": 11.2, "team": "NOP"}]
+    result = get_captions("award", players=players, award_type="dpoy")
+    assert "Herb Jones" in result["tiktok"]
+    assert "DPOY" in result["tiktok"]
+
+
+def test_mvp_race_injects_efficiency():
+    players = [{"name": "Nikola Jokic", "ppg": 27.4, "eff": 34.1, "team": "DEN"}]
+    result = get_captions("mvp_race", players=players)
+    assert "Nikola Jokic" in result["tiktok"]
+    assert "34.1" in result["tiktok"]
+
+
+def test_x_caption_trim_at_280():
+    long_title = "A" * 300
+    result = get_captions("debate", title=long_title)
+    assert len(result["x"]) <= 280
+    assert result["x"].endswith("...")

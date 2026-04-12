@@ -74,9 +74,9 @@ def _top5(*, players, date, title, award_type, matchup) -> dict[str, str]:
     date_str = f" ({date})" if date else ""
 
     tiktok = (
-        f"{name} dropped {ppg} points last night 👀{date_str}\n"
+        f"{name} leads last night's Top 5 — averaging {ppg} PPG this season 📊{date_str}\n"
         f"Here's your NBA Top 5 breakdown — who's running the league right now?\n"
-        f"Drop your pick below 👇\n"
+        f"Do you agree with the ranking?\n"
         f"#NBA #Basketball #Top5 #NBAHighlights #rushmore"
     )
 
@@ -127,7 +127,7 @@ def _mvp_race(*, players, date, title, award_type, matchup) -> dict[str, str]:
 def _scoring_title(*, players, date, title, award_type, matchup) -> dict[str, str]:
     p = players[0] if players else {}
     name = p.get("name", "the scoring leader")
-    ppg = p.get("ppg", "")
+    ppg = p.get("ppg", 0) or 0
     ppg_str = f" {ppg} PPG" if ppg else ""
 
     tiktok = (
@@ -138,10 +138,9 @@ def _scoring_title(*, players, date, title, award_type, matchup) -> dict[str, st
     )
 
     instagram = (
-        f"🎯 {name} is averaging{ppg_str} and chasing the scoring title.\n\n"
-        f"The lead can change any given night — who do you think locks it up?\n\n"
-        f"Track the full race at rushmore.cards\n\n"
-        f"#NBA #ScoringTitle #NBAStats #Basketball #HoopsTalk #NBAHighlights #rushmore #HoopsDebate"
+        f"Scoring Title Race — final standings 🎯\n"
+        f"{name} leads at {ppg:.1f} PPG. Full ranking on rushmore.cards\n"
+        f"#NBA #ScoringTitle #NBAStats #Basketball #rushmore"
     )
 
     x = _trim_x(
@@ -213,14 +212,14 @@ def _award(*, players, date, title, award_type, matchup) -> dict[str, str]:
         f"{emoji} {label} race{name_str}\n"
         f"Is this the front-runner or is there still a real competition?\n"
         f"Who gets your {label} vote? 👇\n"
-        f"#NBA #{label.replace('-', '')} #Basketball #NBADebate #rushmore"
+        f"#NBA #{label.replace('-', '').replace(' ', '')} #Basketball #NBADebate #rushmore"
     )
 
     instagram = (
         f"{emoji} The {label} race{name_str}.\n\n"
         f"These numbers make a strong case — but awards are never just about stats.\n\n"
         f"See the full breakdown at rushmore.cards\n\n"
-        f"#NBA #{label.replace('-', '')} #NBAStats #Basketball #HoopsDebate #NBADebate #rushmore #HoopsTalk"
+        f"#NBA #{label.replace('-', '').replace(' ', '')} #NBAStats #Basketball #HoopsDebate #NBADebate #rushmore #HoopsTalk"
     )
 
     x = _trim_x(
