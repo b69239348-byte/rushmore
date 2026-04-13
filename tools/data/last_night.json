@@ -1,5 +1,61 @@
 {
-  "date": "2026-04-11",
-  "games": false,
-  "players": []
+  "date": "2026-04-12",
+  "games": true,
+  "players": [
+    {
+      "player_id": 1642847,
+      "player_name": "Jeremiah Fears",
+      "team": "NOP",
+      "pts": 36,
+      "reb": 10,
+      "ast": 5,
+      "stl": 2,
+      "blk": 1,
+      "in_db": true
+    },
+    {
+      "player_id": 1627741,
+      "player_name": "Buddy Hield",
+      "team": "ATL",
+      "pts": 31,
+      "reb": 3,
+      "ast": 3,
+      "stl": 1,
+      "blk": 0,
+      "in_db": true
+    },
+    {
+      "player_id": 1631248,
+      "player_name": "Baylor Scheierman",
+      "team": "BOS",
+      "pts": 30,
+      "reb": 7,
+      "ast": 7,
+      "stl": 2,
+      "blk": 1,
+      "in_db": true
+    },
+    {
+      "player_id": 1642852,
+      "player_name": "Derik Queen",
+      "team": "NOP",
+      "pts": 30,
+      "reb": 22,
+      "ast": 4,
+      "stl": 1,
+      "blk": 1,
+      "in_db": true
+    },
+    {
+      "player_id": 1631131,
+      "player_name": "Oscar Tshiebwe",
+      "team": "UTA",
+      "pts": 29,
+      "reb": 17,
+      "ast": 3,
+      "stl": 0,
+      "blk": 0,
+      "in_db": true
+    }
+  ]
 }
