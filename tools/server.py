@@ -370,24 +370,41 @@ def generate_teams(req: GenerateTeamsRequest):
     return FileResponse(output_path, media_type="image/png", filename="rushmore-teams.png")
 
 
+_ILLUSTRATED_POOL = [
+    "illustrated_court_teal",
+    "illustrated_court_orange",
+    "illustrated_dunk_purple",
+    "illustrated_dunk_sunburst",
+    "illustrated_shooter_green",
+    "illustrated_pass_gradient",
+]
+
+_GENERAL_POOL = _ILLUSTRATED_POOL + [
+    "night_court_outdoor",
+    "indoor_arena",
+    "rooftop_city",
+]
+
+
 def _pick_background(subtitle: str, explicit: str) -> str:
     """Pick background based on theme if not explicitly set."""
+    import random
     if explicit:
         return explicit
     s = subtitle.lower()
     if any(x in s for x in ["champion", "finals"]):
-        return "trophy_celebration"
+        return random.choice(["trophy_celebration", "illustrated_dunk_sunburst"])
     if any(x in s for x in ["mvp", "dpoy", "roy", "mip", "all-nba", "award"]):
-        return "trophy_spotlight"
+        return random.choice(["trophy_spotlight", "illustrated_dunk_purple", "illustrated_dunk_sunburst"])
     if any(x in s for x in ["season", "current", "active"]):
-        return "indoor_arena"
+        return random.choice(["indoor_arena", "illustrated_court_teal", "illustrated_court_orange"])
     if any(x in s for x in ["freestyle", "custom", "own"]):
-        return "rooftop_city"
+        return random.choice(["rooftop_city", "illustrated_pass_gradient", "illustrated_shooter_green"])
     if any(x in s for x in ["all-time", "greatest", "goat", "legend"]):
-        return "golden_arena"
+        return random.choice(["golden_arena", "illustrated_dunk_purple", "illustrated_court_teal"])
     if any(x in s for x in ["team", "bracket", "tier"]):
-        return "night_court_outdoor"
-    return "night_court_outdoor"
+        return random.choice(["night_court_outdoor", "illustrated_court_orange", "illustrated_pass_gradient"])
+    return random.choice(_GENERAL_POOL)
 
 
 @app.post("/api/generate")
