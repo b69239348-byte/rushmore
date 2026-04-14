@@ -89,8 +89,25 @@ def generate_award_card(
     players: list[dict] = []
 
     if items:
-        # Manual override always takes priority
-        players = [{"name": item.strip(), "id": 0, "team": ""} for item in items[:5]]
+        # Manual override: items can be strings or dicts {name, team, player_id}
+        from generate_card import load_players, _find_player
+        db = load_players()
+        resolved = []
+        for item in items[:5]:
+            if isinstance(item, dict):
+                # Dict form: explicit player_id takes priority
+                pid  = item.get("player_id") or item.get("id") or 0
+                name = item.get("name", "")
+                team = item.get("team", "")
+                resolved.append({"name": name, "id": pid, "team": team, "stats": item.get("stats", "")})
+            else:
+                name = str(item).strip()
+                p = _find_player(db, name)
+                if p:
+                    resolved.append({"name": p["name"], "id": p["id"], "team": p.get("team", "")})
+                else:
+                    resolved.append({"name": name, "id": 0, "team": ""})
+        players = resolved
         auto_data = False
 
     if auto_data and fetch_fn_name:
@@ -123,7 +140,17 @@ def generate_award_card(
     _photo_size = int(_row_h * 0.70)
 
     # ── Canvas ────────────────────────────────────────────────────────────
-    canvas = _load_background("underground_court", height=canvas_h).convert("RGBA")
+    _BG_MAP = {
+        "roty":       "trophy_spotlight",
+        "mip":        "trophy_celebration",
+        "mvp":        "trophy_jordan",
+        "dpoy":       "indoor_arena",
+        "scoring":    "indoor_arena",
+        "all_nba":    "golden_arena",
+        "all_rookie": "trophy_celebration",
+    }
+    bg_name = _BG_MAP.get(award_type, "underground_court")
+    canvas = _load_background(bg_name, height=canvas_h).convert("RGBA")
 
     overlay = Image.new("RGBA", (WIDTH, canvas_h), (0, 0, 0, 120))
     canvas.alpha_composite(overlay)
@@ -147,38 +174,37 @@ def generate_award_card(
     draw = ImageDraw.Draw(canvas)
 
     # ── Title ─────────────────────────────────────────────────────────────
-    icon_font_size = max(28, int(44 * _scale))
-    title_font     = _font_impact(max(54, int(96 * _scale)))
-    sub_font       = _font(max(18, int(30 * _scale)))
+    title_font = _font_impact(max(54, int(96 * _scale)))
+    sub_font   = _font(max(18, int(30 * _scale)))
 
-    title_text = f"{short_label} RACE"
-    sub_text   = f"2025-26  ·  {full_title.upper()}"
+    # Static award types (all_nba, all_rookie) don't have a "race" — use full title
+    _STATIC_AWARDS = {"all_nba", "all_rookie"}
+    if award_type in _STATIC_AWARDS:
+        title_text = full_title.upper()
+        sub_text   = "2025-26 NBA SEASON"
+    else:
+        title_text = f"{short_label} RACE"
+        sub_text   = f"2025-26  ·  {full_title.upper()}"
 
     t_bbox = draw.textbbox((0, 0), title_text, font=title_font)
-    t_w    = t_bbox[2] - t_bbox[0]
-    t_h    = t_bbox[3] - t_bbox[1]
-
     s_bbox = draw.textbbox((0, 0), sub_text, font=sub_font)
-    s_w    = s_bbox[2] - s_bbox[0]
+    t_w = t_bbox[2] - t_bbox[0]
+    s_w = s_bbox[2] - s_bbox[0]
 
-    # Measure icon height for block sizing
-    icon_font_obj = _font_impact(icon_font_size)
-    i_bbox = draw.textbbox((0, 0), icon_char, font=icon_font_obj)
-    i_h = i_bbox[3] - i_bbox[1]
+    # Visual height of the block: from visual top of title to visual bottom of subtitle.
+    # t_bbox[1] is a positive offset (Impact font renders below the draw point).
+    # So visual extent = t_bbox[3] (title bottom from draw point) + gap + s_bbox[3].
+    _GAP_TITLE_SUB = 14
+    visual_h = t_bbox[3] + _GAP_TITLE_SUB + s_bbox[3]
 
-    block_h = i_h + 8 + t_h + 12 + (s_bbox[3] - s_bbox[1])
-    block_y = _v_inset + (_title_h - block_h) // 2
+    # Align visual top of the block to the center of the title area.
+    # visual top of title = title_y + t_bbox[1], so:
+    visual_start = _v_inset + max(16, (_title_h - visual_h) // 2)
+    title_y = visual_start - t_bbox[1]
+    sub_y   = title_y + t_bbox[3] + _GAP_TITLE_SUB
 
-    # Icon centered above title
-    icon_cx = WIDTH // 2
-    icon_cy = block_y + i_h // 2
-    _draw_icon_char(draw, icon_char, icon_cx, icon_cy, icon_font_size, TEAL)
-
-    title_y = block_y + i_h + 8
     draw.text(((WIDTH - t_w) // 2, title_y), title_text, fill=WHITE, font=title_font)
-
-    sub_y = title_y + t_h + 12
-    draw.text(((WIDTH - s_w) // 2, sub_y), sub_text, fill=(*TEAL, 220), font=sub_font)
+    draw.text(((WIDTH - s_w) // 2, sub_y),   sub_text,   fill=(*TEAL, 220), font=sub_font)
 
     # Divider
     div_y = _v_inset + _title_h - 8
@@ -191,7 +217,6 @@ def generate_award_card(
     stats_font = _font(max(14, int(30 * _scale)))
     PHOTO_SIZE = _photo_size
     RANK_W     = max(60, int(100 * _scale))
-    LOGO_SIZE  = 160
 
     for i, player in enumerate(players):
         row_y = _v_inset + _title_h + i * _row_h + _row_gap // 2
@@ -212,10 +237,12 @@ def generate_award_card(
         # Team logo
         team_abbr = player.get("team", "")
         logo_candidates = [team_abbr] if team_abbr else []
-        logo = _load_team_logo(logo_candidates, LOGO_SIZE, opacity=0.75)
-        logo_x = WIDTH - PAD - LOGO_SIZE - 10
+        _logo_size = int(row_h * 0.55)
+        logo = _load_team_logo(logo_candidates, _logo_size, opacity=0.55)
+        logo_x = WIDTH - PAD - _logo_size - 16
         if logo:
-            canvas.alpha_composite(logo, (logo_x, row_y + 6))
+            logo_y = row_y + (row_h - _logo_size) // 2
+            canvas.alpha_composite(logo, (logo_x, logo_y))
             draw = ImageDraw.Draw(canvas)
 
         # Rank number
@@ -251,17 +278,25 @@ def generate_award_card(
 
         # Text block layout
         text_x     = photo_x + PHOTO_SIZE + 24
-        text_max_w = logo_x - text_x - 16
+        text_max_w = logo_x - text_x - 12
 
-        # Name (truncate to fit)
+        # Name (truncate to fit) — try full → last-name-only → abbreviated → truncated
         full_name = player["name"].upper()
         name = full_name
         n_bbox = draw.textbbox((0, 0), name, font=name_font)
         if (n_bbox[2] - n_bbox[0]) > text_max_w:
             parts = player["name"].split()
             if len(parts) >= 2:
-                name = f"{parts[0][0]}. {' '.join(parts[1:]).upper()}"
-                n_bbox = draw.textbbox((0, 0), name, font=name_font)
+                # Try last name(s) only, e.g. "GILGEOUS-ALEXANDER" or "WEMBANYAMA"
+                last_only = " ".join(parts[1:]).upper()
+                lb = draw.textbbox((0, 0), last_only, font=name_font)
+                if (lb[2] - lb[0]) <= text_max_w:
+                    name = last_only
+                    n_bbox = lb
+                else:
+                    # Fall back to first initial + last name
+                    name = f"{parts[0][0]}. {last_only}"
+                    n_bbox = draw.textbbox((0, 0), name, font=name_font)
         while (n_bbox[2] - n_bbox[0]) > text_max_w and len(name) > 4:
             name = name[:-2] + "…"
             n_bbox = draw.textbbox((0, 0), name, font=name_font)
@@ -271,7 +306,10 @@ def generate_award_card(
         _stats_h = max(14, int(32 * _scale))
 
         # Decide if we'll show a stat line
-        show_stat = (
+        # Priority: explicit 'stats' string in player dict (for manual cards like all_nba)
+        # Fallback: computed from stat_key (for live-data cards)
+        manual_stats = player.get("stats", "")
+        show_stat = bool(manual_stats) or (
             stat_key is not None
             and stat_label is not None
             and stat_key in player
@@ -297,21 +335,41 @@ def generate_award_card(
         meta_y = text_y + _name_h + 8
         draw.text((text_x, meta_y), meta, fill=GRAY, font=meta_font)
 
-        # Stat line (only when stat_key present in player dict)
+        # Stat line
         if show_stat:
-            stat_val = player[stat_key]
-            # Special-case DPOY: show BLK · STL · DRTG instead
-            if award_type == "dpoy":
-                bpg  = player.get("bpg", 0)
-                spg  = player.get("spg", 0)
-                drtg = player.get("drtg", 0)
-                stats_str = f"{bpg} BLK  ·  {spg} STL  ·  {drtg} DRTG"
-            elif award_type == "mip":
-                delta = player.get("_improvement", "")
-                delta_str = f"+{delta}" if delta else ""
-                stats_str = f"{stat_val} {stat_label}  ·  {delta_str} vs last season" if delta_str else f"{stat_val} {stat_label}"
+            if manual_stats:
+                stats_str = manual_stats
             else:
-                stats_str = f"{stat_val} {stat_label}"
+                stat_val = player[stat_key]
+                if award_type == "dpoy":
+                    bpg  = player.get("bpg", 0)
+                    spg  = player.get("spg", 0)
+                    drtg = player.get("drtg", 0)
+                    stats_str = f"{bpg} BLK  ·  {spg} STL  ·  {drtg} DRTG"
+                elif award_type == "mip":
+                    delta = player.get("_improvement", "")
+                    delta_str = f"+{delta}" if delta else ""
+                    stats_str = f"{stat_val} {stat_label}  ·  {delta_str} vs last season" if delta_str else f"{stat_val} {stat_label}"
+                elif award_type == "roty":
+                    rpg = player.get("rpg", "")
+                    apg = player.get("apg", "")
+                    extras = []
+                    if rpg:
+                        extras.append(f"{rpg} RPG")
+                    if apg:
+                        extras.append(f"{apg} APG")
+                    stats_str = f"{stat_val} PPG  ·  " + "  ·  ".join(extras) if extras else f"{stat_val} PPG"
+                elif award_type in ("mvp", "scoring"):
+                    rpg = player.get("rpg", "")
+                    apg = player.get("apg", "")
+                    extras = []
+                    if rpg:
+                        extras.append(f"{rpg} RPG")
+                    if apg:
+                        extras.append(f"{apg} APG")
+                    stats_str = f"{stat_val} {stat_label}  ·  " + "  ·  ".join(extras) if extras else f"{stat_val} {stat_label}"
+                else:
+                    stats_str = f"{stat_val} {stat_label}"
             stats_y = meta_y + _meta_h + 8
             draw.text((text_x, stats_y), stats_str, fill=(*TEAL, 220), font=stats_font)
 

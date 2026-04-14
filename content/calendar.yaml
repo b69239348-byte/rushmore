@@ -21,17 +21,28 @@ days:
       subtitle: "Top 5 Rookies by PPG"
 
   - date: "2026-04-14"
-    phase: "Play-In Hype"
+    phase: "Play-In"
     planned:
       card_type: debate
       title: "Play-In Bracket"
-      subtitle: "Who Actually Makes the Playoffs?"
+      subtitle: "Here's Who Advances. Period."
+      bg: play_in
       items:
-        - "Golden State Warriors survive the 9/10 game"
-        - "Memphis Grizzlies choke the 7/8 matchup"
-        - "Dallas Mavericks sneak in as the 8 seed"
-        - "New Orleans Pelicans finally healthy — dangerous"
-        - "Atlanta Hawks run out of gas in the play-in"
+        - teams: ["PHI", "ORL"]
+          pick: "ORL"
+          text: "Embiid can't stay healthy — Orlando's defense ends this"
+        - teams: ["CHA", "MIA"]
+          pick: "MIA"
+          text: "Heat culture wins every close game. Every time."
+        - teams: ["PHX", "POR"]
+          pick: "POR"
+          text: "Green's knee is the story — Portland pulls the upset"
+        - teams: ["LAC", "GSW"]
+          pick: "LAC"
+          text: "Warriors are cooked. Clippers handle business."
+        - team: "GSW"
+          name: "Warriors"
+          context: "End of the Kerr era. For real."
 
   - date: "2026-04-15"
     phase: "Play-In"
@@ -39,12 +50,28 @@ days:
       card_type: debate
       title: "Most Likely to Ghost"
       subtitle: "Disappear in the Playoffs"
+      bg: night_court_outdoor
       items:
-        - "Trae Young"
-        - "Zach LaVine"
-        - "Devin Booker"
-        - "Pascal Siakam"
-        - "Darius Garland"
+        - name: "James Harden"
+          team: "CLE"
+          player_id: 201935
+          stats: "0-3 in conf. finals · no rings"
+        - name: "Jalen Williams"
+          team: "OKC"
+          player_id: 1631114
+          stats: "Hamstring + thigh · still not 100%"
+        - name: "Anthony Edwards"
+          team: "MIN"
+          player_id: 1630162
+          stats: "Runner's knee · 10 of 13 missed"
+        - name: "Paolo Banchero"
+          team: "ORL"
+          player_id: 1631094
+          stats: "2x R1 exit · 0 playoff series wins"
+        - name: "Jalen Green"
+          team: "PHX"
+          player_id: 1630224
+          stats: "Right knee · questionable tonight"
 
   - date: "2026-04-16"
     phase: "Play-In"
@@ -55,37 +82,59 @@ days:
       award_type: all_nba
       auto_data: false
       items:
-        - "Nikola Jokic"
-        - "Shai Gilgeous-Alexander"
-        - "Victor Wembanyama"
-        - "Giannis Antetokounmpo"
-        - "LeBron James"
+        - {name: "Nikola Jokic",            team: "DEN", player_id: 203999,  stats: "27.8 PPG · 12.9 RPG · 10.9 APG"}
+        - {name: "Shai Gilgeous-Alexander", team: "OKC", player_id: 1628983, stats: "31.6 PPG · 4.4 RPG · 6.5 APG"}
+        - {name: "Victor Wembanyama",       team: "SAS", player_id: 1641705, stats: "25.0 PPG · 11.5 RPG · 3.1 BPG"}
+        - {name: "Luka Doncic",             team: "LAL", player_id: 1629029, stats: "33.5 PPG · 7.7 RPG · 8.3 APG"}
+        - {name: "Jaylen Brown",            team: "BOS", player_id: 1627759, stats: "28.7 PPG · 6.9 RPG · 5.1 APG"}
 
   - date: "2026-04-17"
-    phase: "Play-In"
+    phase: "Playoffs"
     planned:
       card_type: debate
       title: "Regular Season Frauds"
-      subtitle: "Hot Take: Who Won't Show Up"
+      subtitle: "Big Regular Season, Zero Playoff Résumé"
+      bg: hot_take
       items:
-        - "Trae Young"
-        - "Karl-Anthony Towns"
-        - "Zach LaVine"
-        - "Darius Garland"
-        - "Jordan Poole"
+        - name: "Rudy Gobert"
+          team: "MIN"
+          player_id: 203497
+          stats: "3x DPOY · 0 Finals appearances"
+        - name: "Karl-Anthony Towns"
+          team: "NYK"
+          player_id: 1626157
+          stats: "First ECF run · one-year wonder?"
+        - name: "Donovan Mitchell"
+          team: "CLE"
+          player_id: 1628378
+          stats: "Harden duo · untested together"
+        - name: "Cade Cunningham"
+          team: "DET"
+          player_id: 1630595
+          stats: "#1 seed · collapsed lung survivor"
+        - name: "Julius Randle"
+          team: "MIN"
+          player_id: 203944
+          stats: "3x All-Star · never past round 2"
 
   - date: "2026-04-18"
-    phase: "Pre-Playoffs"
+    phase: "Playoffs R1"
     planned:
       card_type: debate
       title: "Series I Can't Miss"
-      subtitle: "Playoffs Round 1 Preview"
+      subtitle: "Round 1 Playoff Preview"
+      bg: series
       items:
-        - "OKC vs Memphis — young dogs go to war"
-        - "Boston vs Miami — Heat culture one last time?"
-        - "Denver vs LA Clippers — Jokic vs Kawhi 2.0"
-        - "Golden State vs Minnesota — Curry vs ANT"
-        - "Milwaukee vs Cleveland — Giannis redemption arc"
+        - teams: ["DEN", "MIN"]
+          text: "Jokic vs Ant — Denver's revenge tour starts here"
+        - teams: ["LAL", "HOU"]
+          text: "Lakers without Luka vs Houston — who steps up for LA?"
+        - teams: ["NYK", "ATL"]
+          text: "Brunson's Knicks vs Jalen Johnson's Hawks — trap game?"
+        - teams: ["CLE", "TOR"]
+          text: "Harden + Mitchell chemistry test vs a hungry Raptors squad"
+        - teams: ["BOS", "ORL"]
+          text: "Defending champs Celtics vs whoever survives — no easy path"
 
   - date: "2026-04-19"
     phase: "Playoffs R1"

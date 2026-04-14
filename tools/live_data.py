@@ -116,15 +116,22 @@ def fetch_active_players(limit: int = 10) -> list[dict]:
 
 
 def fetch_current_mvp_race(limit: int = 5) -> list[dict]:
-    """Top MVP candidates this season, sorted by efficiency rating."""
+    """Top MVP candidates this season, sorted by per-game efficiency.
+
+    Filters out players with fewer than 65 games played (NBA MVP eligibility threshold).
+    Adds eff_pg (EFF per game) field for display.
+    """
     season = _detect_season()
-    cache_key = f"mvp_race_{season}"
+    cache_key = f"mvp_race_v2_{season}"
     cached = _read_cache(cache_key)
     if cached is not None:
         return cached[:limit]
 
     players = fetch_season_leaders(season=season, limit=50)
-    sorted_p = sorted(players, key=lambda p: p.get("eff", 0), reverse=True)
+    eligible = [p for p in players if p.get("gp", 0) >= 65]
+    for p in eligible:
+        p["eff_pg"] = round(p["eff"] / p["gp"], 1) if p["gp"] > 0 else 0.0
+    sorted_p = sorted(eligible, key=lambda p: p.get("eff_pg", 0), reverse=True)
     _write_cache(cache_key, sorted_p)
     return sorted_p[:limit]
 
@@ -214,6 +221,7 @@ def fetch_current_roy_race(limit: int = 5) -> list[dict]:
         season=season,
         player_experience_nullable="Rookie",
         per_mode_detailed="PerGame",
+        timeout=60,
     )
     df = stats.get_data_frames()[0]
     df = df[df["GP"] >= 10].sort_values("PTS", ascending=False)

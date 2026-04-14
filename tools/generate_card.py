@@ -312,8 +312,12 @@ def generate_card(
 
     t_up = title.upper()
     t_bbox = draw.textbbox((0, 0), t_up, font=title_font)
-    t_w = t_bbox[2] - t_bbox[0]
-    title_y = _v_inset + (_title_h - (t_bbox[3] - t_bbox[1])) // 2
+    t_w  = t_bbox[2] - t_bbox[0]
+    t_h  = t_bbox[3] - t_bbox[1]
+    # Center the visual block: visual top = title_y + t_bbox[1]
+    # So title_y = visual_start - t_bbox[1] where visual_start centers t_h in _title_h
+    visual_start = _v_inset + max(16, (_title_h - t_h) // 2)
+    title_y = visual_start - t_bbox[1]
     draw.text(((WIDTH - t_w) // 2, title_y), t_up, fill=title_color, font=title_font)
 
     # ── Thin divider under title ──
@@ -386,12 +390,26 @@ def generate_card(
         text_x = photo_x + PHOTO_SIZE + 24
         text_max_w = logo_x - text_x - 16
 
-        # Name (truncate if too long)
-        name = player["name"].upper()
+        # Name (smart shortening for long names)
+        raw_name = player["name"]
+        name = raw_name.upper()
         n_bbox = draw.textbbox((0, 0), name, font=name_font)
-        while (n_bbox[2] - n_bbox[0]) > text_max_w and len(name) > 4:
-            name = name[:-2] + "…"
-            n_bbox = draw.textbbox((0, 0), name, font=name_font)
+        if (n_bbox[2] - n_bbox[0]) > text_max_w:
+            # Try "F. LASTNAME" (e.g. "B. SCHEIERMAN")
+            parts = raw_name.split()
+            if len(parts) >= 2:
+                short = f"{parts[0][0]}. {' '.join(parts[1:])}"
+                name = short.upper()
+                n_bbox = draw.textbbox((0, 0), name, font=name_font)
+            if (n_bbox[2] - n_bbox[0]) > text_max_w:
+                # Try last name only
+                name = parts[-1].upper() if len(parts) >= 2 else name
+                n_bbox = draw.textbbox((0, 0), name, font=name_font)
+            if (n_bbox[2] - n_bbox[0]) > text_max_w:
+                # Hard truncate as last resort
+                while (n_bbox[2] - n_bbox[0]) > text_max_w and len(name) > 4:
+                    name = name[:-2] + "…"
+                    n_bbox = draw.textbbox((0, 0), name, font=name_font)
 
         _name_h  = max(24, int(50 * _scale))
         _meta_h  = max(14, int(28 * _scale))

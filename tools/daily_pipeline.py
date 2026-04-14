@@ -162,6 +162,7 @@ def _generate_planned(planned: dict, today_str: str, out_dir: Path) -> list[str]
                     items=items,
                     output_path=output_path,
                     card_format=fmt,
+                    bg=planned.get("bg"),
                 )
 
             elif card_type == "mvp_race":

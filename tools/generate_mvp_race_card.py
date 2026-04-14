@@ -104,7 +104,7 @@ def generate_mvp_race_card(
     sub_font    = _font(max(18, int(30 * _scale)))
 
     title_text = "2025-26 MVP Race"
-    sub_text   = "Top 5 by EFF"
+    sub_text   = "Top 5 Eligible Candidates"
 
     t_bbox = draw.textbbox((0, 0), title_text, font=title_font)
     t_w    = t_bbox[2] - t_bbox[0]
@@ -232,10 +232,10 @@ def generate_mvp_race_card(
         meta_y = text_y + _name_h + 8
         draw.text((text_x, meta_y), meta, fill=GRAY, font=meta_font)
 
-        # MVP stats line: PPG · EFF
+        # MVP stats line: PPG · EFF/G
         ppg = player.get("ppg", 0.0)
-        eff = player.get("eff", 0.0)
-        stats_str = f"{ppg:.1f} PPG  |  {eff:.1f} EFF"
+        eff = player.get("eff_pg") or round(player.get("eff", 0.0) / max(player.get("gp", 1), 1), 1)
+        stats_str = f"{ppg:.1f} PPG  |  {eff:.1f} EFF/G"
         stats_y = meta_y + _meta_h + 8
         draw.text((text_x, stats_y), stats_str, fill=(*TEAL, 220), font=stats_font)
 

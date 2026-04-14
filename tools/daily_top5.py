@@ -40,6 +40,7 @@ def fetch_top5_scorers(game_date: Optional[date] = None) -> list[dict]:
         player_or_team_abbreviation="P",
         sorter="PTS",
         direction="DESC",
+        timeout=60,
     )
     df = logs.get_data_frames()[0]
 
@@ -70,46 +71,63 @@ def fetch_top5_scorers(game_date: Optional[date] = None) -> list[dict]:
 
 # ── Card + caption generation ─────────────────────────────────────────────────
 
-def _build_caption(players: list[dict], game_date: date) -> str:
-    """Build ready-to-paste social media caption."""
-    # Top 3 as compact "name pts/reb/ast" highlights
+def _build_captions(players: list[dict], game_date: date) -> dict[str, str]:
+    """Build platform-specific captions for TikTok, Instagram, X."""
     def short(p: dict) -> str:
         parts = p["name"].split()
         last = parts[-2] if parts[-1] in ("Jr.", "Sr.", "II", "III", "IV") else parts[-1]
         return f"{last} {p['pts']}/{p['reb']}/{p['ast']}"
 
     highlights = " · ".join(short(p) for p in players[:3])
+    leader = players[0]
+    leader_last = short(leader).split()[0]
+    date_str = game_date.strftime("%b %-d")
 
-    lines = [
-        f"Top Performers last night 🔥",
-        "",
-        highlights,
-        "",
-        "Would any of them make your Mt. Rushmore?",
-        "Build your list 👉 rushmore.cards",
-        "",
-        "#NBA #Basketball #Rushmore",
-    ]
-    return "\n".join(lines)
+    tiktok = (
+        f"Top Performers — {date_str} 🔥\n"
+        f"\n"
+        f"{highlights}\n"
+        f"\n"
+        f"Would any of them make your Mt. Rushmore?\n"
+        f"#NBA #Basketball #TopPerformers #NBAHighlights #rushmore"
+    )
+
+    instagram = (
+        f"Top Performers — {date_str} 🔥\n"
+        f"\n"
+        f"{highlights}\n"
+        f"\n"
+        f"Who stood out to you last night? Build your own Top 5 👉 rushmore.cards\n"
+        f"\n"
+        f"#NBA #Basketball #TopPerformers #NBAStats #NBAHighlights #HoopsTalk #rushmore"
+    )
+
+    x_text = f"{leader_last} leads last night's Top 5 — {highlights} 🔥 #NBA #Basketball"
+    if len(x_text) > 280:
+        x_text = x_text[:277] + "..."
+
+    return {"tiktok": tiktok, "instagram": instagram, "x": x_text}
 
 
 def generate_daily_card(
     game_date: Optional[date] = None,
     output_dir: Optional[Path] = None,
 ) -> Path:
-    """Fetch top 5 scorers for game_date, generate card + caption, write to output_dir.
+    """Fetch top 5 scorers for game_date, generate story + feed cards + captions.
 
-    Returns the output directory path.
-    Default output_dir: ~/Desktop/rushmore/YYYY-MM-DD/
+    Outputs to output_dir/top5/ subfolder.
+    Returns the top5 subfolder path.
+    Default output_dir: output/YYYY-MM-DD/ relative to project root.
     """
     if game_date is None:
         game_date = date.today() - timedelta(days=1)
 
+    project_root = Path(__file__).parent.parent
     if output_dir is None:
-        output_dir = Path.home() / "Desktop" / "rushmore" / game_date.isoformat()
+        output_dir = project_root / "output" / game_date.isoformat()
 
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    top5_dir = Path(output_dir) / "top5"
+    top5_dir.mkdir(parents=True, exist_ok=True)
 
     # Fetch data
     players = fetch_top5_scorers(game_date=game_date)
@@ -130,33 +148,35 @@ def generate_daily_card(
         for p in players
     }
 
-    # Enrich with live team info
-    # Provides team abbreviation override for generate_card's live_by_id lookup.
-    # Players missing from the local DB will render without a headshot.
     extra_players = [
         {"id": p["id"], "name": p["name"], "team": p["team"]}
         for p in players
     ]
 
     date_label = f"{game_date.strftime('%b')} {game_date.day}, {game_date.year}".upper()
-    card_path = output_dir / "card.png"
-
-    generate_card(
+    shared_args = dict(
         queries=queries,
         title="TOP PERFORMERS",
         subtitle=date_label,
-        output_path=str(card_path),
         background="night_court_outdoor",
         extra_players=extra_players,
         game_stats=game_stats,
     )
 
-    # Write caption
-    caption = _build_caption(players, game_date)
-    caption_path = output_dir / "caption.txt"
-    caption_path.write_text(caption, encoding="utf-8")
+    # Story (1080×1920)
+    story_path = top5_dir / "story.png"
+    generate_card(**shared_args, output_path=str(story_path), card_format="story")
 
-    return output_dir
+    # Feed (1080×1080)
+    feed_path = top5_dir / "feed.png"
+    generate_card(**shared_args, output_path=str(feed_path), card_format="feed")
+
+    # Captions
+    captions = _build_captions(players, game_date)
+    for platform, text in captions.items():
+        (top5_dir / f"caption_{platform}.txt").write_text(text, encoding="utf-8")
+
+    return top5_dir
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -179,9 +199,12 @@ if __name__ == "__main__":
         game_date = date.today() - timedelta(days=1)
 
     print(f"Fetching top performers for {game_date.isoformat()}...")
-    out_dir = generate_daily_card(game_date=game_date)
+    top5_dir = generate_daily_card(game_date=game_date)
 
-    print(f"\n✓ Card saved to:    {out_dir / 'card.png'}")
-    print(f"✓ Caption saved to: {out_dir / 'caption.txt'}")
-    print(f"\n--- Caption preview ---")
-    print((out_dir / "caption.txt").read_text(encoding="utf-8"))
+    print(f"\n✓ story.png       → {top5_dir / 'story.png'}")
+    print(f"✓ feed.png        → {top5_dir / 'feed.png'}")
+    print(f"✓ caption_tiktok  → {top5_dir / 'caption_tiktok.txt'}")
+    print(f"✓ caption_instagram → {top5_dir / 'caption_instagram.txt'}")
+    print(f"✓ caption_x       → {top5_dir / 'caption_x.txt'}")
+    print(f"\n--- TikTok Caption ---")
+    print((top5_dir / "caption_tiktok.txt").read_text(encoding="utf-8"))
