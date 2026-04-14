@@ -1,0 +1,1 @@
+web: cd tools && uvicorn server:app --host 0.0.0.0 --port $PORT
