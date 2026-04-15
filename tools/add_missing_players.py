@@ -14,12 +14,13 @@ DB_PATH = Path(__file__).parent.parent / "players.json"
 DELAY = 0.7
 
 TARGET_PLAYERS = [
-    "Draymond Green",
-    "Ben Simmons",
-    "T.J. McConnell",
-    "Jakob Poeltl",
-    "P.J. Tucker",
-    "Drazen Petrovic",
+    "Charles Oakley",
+    "Steven Adams",
+    "Bill Laimbeer",
+    "Derrick Rose",
+    "Alex Caruso",
+    "Larry Johnson",
+    "Spud Webb",
 ]
 
 
