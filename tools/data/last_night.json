@@ -1,60 +1,60 @@
 {
-  "date": "2026-04-14",
+  "date": "2026-04-15",
   "games": true,
   "players": [
     {
-      "player_id": 1630163,
-      "player_name": "LaMelo Ball",
-      "team": "CHA",
-      "pts": 30,
-      "reb": 5,
-      "ast": 10,
-      "stl": 1,
-      "blk": 1,
-      "in_db": true
-    },
-    {
-      "player_id": 1628970,
-      "player_name": "Miles Bridges",
-      "team": "CHA",
-      "pts": 28,
-      "reb": 9,
-      "ast": 2,
-      "stl": 1,
-      "blk": 3,
-      "in_db": true
-    },
-    {
-      "player_id": 1630558,
-      "player_name": "Davion Mitchell",
-      "team": "MIA",
-      "pts": 28,
-      "reb": 4,
-      "ast": 6,
-      "stl": 2,
-      "blk": 1,
-      "in_db": true
-    },
-    {
-      "player_id": 203952,
-      "player_name": "Andrew Wiggins",
-      "team": "MIA",
-      "pts": 27,
-      "reb": 7,
+      "player_id": 1630217,
+      "player_name": "Desmond Bane",
+      "team": "ORL",
+      "pts": 34,
+      "reb": 3,
       "ast": 3,
       "stl": 0,
+      "blk": 1,
+      "in_db": true
+    },
+    {
+      "player_id": 1630178,
+      "player_name": "Tyrese Maxey",
+      "team": "PHI",
+      "pts": 31,
+      "reb": 2,
+      "ast": 6,
+      "stl": 1,
+      "blk": 1,
+      "in_db": true
+    },
+    {
+      "player_id": 1626162,
+      "player_name": "Kelly Oubre Jr.",
+      "team": "PHI",
+      "pts": 19,
+      "reb": 3,
+      "ast": 1,
+      "stl": 1,
       "blk": 0,
       "in_db": true
     },
     {
-      "player_id": 1630224,
-      "player_name": "Jalen Green",
-      "team": "PHX",
-      "pts": 24,
-      "reb": 3,
+      "player_id": 1642845,
+      "player_name": "VJ Edgecombe",
+      "team": "PHI",
+      "pts": 19,
+      "reb": 11,
       "ast": 1,
-      "stl": 0,
+      "stl": 1,
       "blk": 0,
+      "in_db": true
+    },
+    {
+      "player_id": 1631094,
+      "player_name": "Paolo Banchero",
+      "team": "ORL",
+      "pts": 18,
+      "reb": 5,
+      "ast": 4,
+      "stl": 0,
+      "blk": 1,
       "in_db": true
     }
   ]
