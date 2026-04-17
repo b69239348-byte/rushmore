@@ -364,7 +364,7 @@ class GenerateRequest(BaseModel):
     player_ids: List[int]
     title: str = "MY MT. RUSHMORE"
     subtitle: str = "ALL-TIME GREATEST"
-    background: str = "night_court_outdoor"
+    background: str = ""
     format: str = "story"
 
 
