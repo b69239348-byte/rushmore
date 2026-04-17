@@ -279,6 +279,10 @@ def generate_card(
         for y in range(_grad_top):
             alpha = int(200 * (1 - y / _grad_top) + 40)
             ImageDraw.Draw(grad).line([(0, y), (WIDTH, y)], fill=(255, 255, 255, alpha))
+    elif background.startswith("illustrated_"):
+        for y in range(_grad_top):
+            alpha = int(100 * (1 - y / _grad_top) + 20)
+            ImageDraw.Draw(grad).line([(0, y), (WIDTH, y)], fill=(4, 8, 18, alpha))
     else:
         for y in range(_grad_top):
             alpha = int(180 * (1 - y / _grad_top) + 60)
@@ -424,7 +428,7 @@ def generate_card(
         meta_parts = []
         if player.get("position"):
             meta_parts.append(player["position"])
-        team_abbr = player.get("main_team") or player.get("team") or (player.get("teams") or [None])[0]
+        team_abbr = player.get("current_team") or player.get("main_team") or player.get("team") or (player.get("teams") or [None])[0]
         if team_abbr:
             meta_parts.append(_ABBR_ALIASES.get(team_abbr.upper(), team_abbr.upper()))
         meta = "  ·  ".join(meta_parts) if meta_parts else ""
