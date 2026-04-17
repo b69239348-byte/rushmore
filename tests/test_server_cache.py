@@ -73,3 +73,18 @@ def test_all_nba_tier_caches_per_tier():
         client.get("/api/categories/all-nba/2")
         # tier 1 cached (1 call), tier 2 fresh (1 call) = 2 total
         assert mock_fetch.call_count == 2
+
+
+def test_cache_expires_after_ttl():
+    import server
+    server._api_cache.clear()
+
+    players = _make_players()
+    with patch("server.fetch_current_mvp_race", return_value=players) as mock_fetch:
+        client = TestClient(server.app)
+        client.get("/api/categories/current-mvp")
+        # Manually expire the cache entry
+        data, _ts = server._api_cache["current_mvp"]
+        server._api_cache["current_mvp"] = (data, 0)  # timestamp 0 = definitely expired
+        client.get("/api/categories/current-mvp")
+        assert mock_fetch.call_count == 2, "Expired cache must trigger re-fetch"
