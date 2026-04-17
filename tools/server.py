@@ -3,6 +3,7 @@ Rushmore MVP — FastAPI Backend
 Serves player data and generates card images.
 """
 import json
+import time
 import tempfile
 from pathlib import Path
 from typing import List, Optional
@@ -41,6 +42,22 @@ _player_db = None
 _live_players = None
 _jersey_by_id = None
 _position_by_id = None
+
+# In-memory TTL cache for live NBA API responses
+_api_cache: dict = {}
+_API_CACHE_TTL = 6 * 3600  # 6 hours
+
+
+def _get_cached(key: str):
+    if key in _api_cache:
+        data, ts = _api_cache[key]
+        if time.time() - ts < _API_CACHE_TTL:
+            return data
+    return None
+
+
+def _set_cached(key: str, data):
+    _api_cache[key] = (data, time.time())
 
 
 def get_db():
@@ -267,41 +284,61 @@ def get_active_players(limit: int = 10):
 @app.get("/api/categories/current-mvp")
 def get_current_mvp(limit: int = 5):
     season = _detect_season()
+    cached = _get_cached("current_mvp")
+    if cached is not None:
+        return cached
     try:
         players = fetch_current_mvp_race(limit)
     except Exception:
         players = _fallback("mvp_race")[:limit]
-    return {"title": "MVP RACE", "subtitle": f"{season} — Top Candidates by Efficiency", "players": _enrich_jersey(players)}
+    result = {"title": "MVP RACE", "subtitle": f"{season} — Top Candidates by Efficiency", "players": _enrich_jersey(players)}
+    _set_cached("current_mvp", result)
+    return result
 
 
 @app.get("/api/categories/current-dpoy")
 def get_current_dpoy(limit: int = 5):
     season = _detect_season()
+    cached = _get_cached("current_dpoy")
+    if cached is not None:
+        return cached
     try:
         players = fetch_current_dpoy_race(limit)
     except Exception:
         players = _fallback("dpoy_race")[:limit]
-    return {"title": "DPOY RACE", "subtitle": f"{season} — Top Defensive Players", "players": _enrich_jersey(players)}
+    result = {"title": "DPOY RACE", "subtitle": f"{season} — Top Defensive Players", "players": _enrich_jersey(players)}
+    _set_cached("current_dpoy", result)
+    return result
 
 
 @app.get("/api/categories/current-roy")
 def get_current_roy(limit: int = 5):
     season = _detect_season()
+    cached = _get_cached("current_roy")
+    if cached is not None:
+        return cached
     try:
         players = fetch_current_roy_race(limit)
     except Exception:
         players = _fallback("roy_race")[:limit]
-    return {"title": "ROOKIE OF THE YEAR", "subtitle": f"{season} — Top Rookies", "players": _enrich_jersey(players)}
+    result = {"title": "ROOKIE OF THE YEAR", "subtitle": f"{season} — Top Rookies", "players": _enrich_jersey(players)}
+    _set_cached("current_roy", result)
+    return result
 
 
 @app.get("/api/categories/current-mip")
 def get_current_mip(limit: int = 5):
     season = _detect_season()
+    cached = _get_cached("current_mip")
+    if cached is not None:
+        return cached
     try:
         players = fetch_current_mip_race(limit)
     except Exception:
         players = _fallback("mip_race")[:limit]
-    return {"title": "MOST IMPROVED", "subtitle": f"{season} — Biggest PPG Jump", "players": _enrich_jersey(players)}
+    result = {"title": "MOST IMPROVED", "subtitle": f"{season} — Biggest PPG Jump", "players": _enrich_jersey(players)}
+    _set_cached("current_mip", result)
+    return result
 
 
 @app.get("/api/categories/all-nba/{tier}")
@@ -310,11 +347,17 @@ def get_all_nba_tier(tier: int, limit: int = 5):
         return {"error": "Tier must be 1, 2, or 3"}
     season = _detect_season()
     ordinals = {1: "First", 2: "Second", 3: "Third"}
+    cache_key = f"all_nba_{tier}"
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
     try:
         players = fetch_all_nba_tier(tier, limit)
     except Exception:
         players = _fallback(f"all_nba_{tier}")[:limit]
-    return {"title": f"ALL-NBA {ordinals[tier].upper()} TEAM", "subtitle": f"{season} — {ordinals[tier]} Team", "players": _enrich_jersey(players)}
+    result = {"title": f"ALL-NBA {ordinals[tier].upper()} TEAM", "subtitle": f"{season} — {ordinals[tier]} Team", "players": _enrich_jersey(players)}
+    _set_cached(cache_key, result)
+    return result
 
 
 class GenerateRequest(BaseModel):
