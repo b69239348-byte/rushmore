@@ -1,60 +1,60 @@
 {
-  "date": "2026-04-21",
+  "date": "2026-04-22",
   "games": true,
   "players": [
     {
-      "player_id": 1627759,
-      "player_name": "Jaylen Brown",
-      "team": "BOS",
-      "pts": 36,
-      "reb": 7,
-      "ast": 4,
+      "player_id": 1628983,
+      "player_name": "Shai Gilgeous-Alexander",
+      "team": "OKC",
+      "pts": 29,
+      "reb": 5,
+      "ast": 7,
       "stl": 1,
-      "blk": 1,
-      "in_db": true
-    },
-    {
-      "player_id": 1627759,
-      "player_name": "Jaylen Brown",
-      "team": "BOS",
-      "pts": 36,
-      "reb": 7,
-      "ast": 4,
-      "stl": 1,
-      "blk": 1,
-      "in_db": true
-    },
-    {
-      "player_id": 1630703,
-      "player_name": "Scoot Henderson",
-      "team": "POR",
-      "pts": 31,
-      "reb": 1,
-      "ast": 0,
-      "stl": 1,
-      "blk": 1,
-      "in_db": true
-    },
-    {
-      "player_id": 1630703,
-      "player_name": "Scoot Henderson",
-      "team": "POR",
-      "pts": 31,
-      "reb": 1,
-      "ast": 0,
-      "stl": 1,
-      "blk": 1,
-      "in_db": true
-    },
-    {
-      "player_id": 1642845,
-      "player_name": "VJ Edgecombe",
-      "team": "PHI",
-      "pts": 30,
-      "reb": 10,
-      "ast": 2,
-      "stl": 2,
       "blk": 0,
+      "in_db": true
+    },
+    {
+      "player_id": 1630595,
+      "player_name": "Cade Cunningham",
+      "team": "DET",
+      "pts": 27,
+      "reb": 6,
+      "ast": 11,
+      "stl": 1,
+      "blk": 1,
+      "in_db": true
+    },
+    {
+      "player_id": 1630591,
+      "player_name": "Jalen Suggs",
+      "team": "ORL",
+      "pts": 19,
+      "reb": 6,
+      "ast": 4,
+      "stl": 0,
+      "blk": 0,
+      "in_db": true
+    },
+    {
+      "player_id": 1631114,
+      "player_name": "Jalen Williams",
+      "team": "OKC",
+      "pts": 19,
+      "reb": 1,
+      "ast": 4,
+      "stl": 1,
+      "blk": 0,
+      "in_db": true
+    },
+    {
+      "player_id": 1631096,
+      "player_name": "Chet Holmgren",
+      "team": "OKC",
+      "pts": 19,
+      "reb": 6,
+      "ast": 0,
+      "stl": 0,
+      "blk": 3,
       "in_db": true
     }
   ]
