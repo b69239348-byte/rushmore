@@ -10,10 +10,10 @@
 ---
 
 ## Instagram
-Banchero led the night with 25/5/6 💥 LaMelo, Jalen Green & the Magic trio all showed out. Top 5 from last night 👇 #NBA #Basketball #NBAHighlights #NBATopPerformers #MagicNBA #LaMelo #JalenGreen
+Banchero led the night with 25-5-6. Orlando putting on a show 🏀 Drop your MVP below. #NBA #Basketball #NBAHighlights #OrlandoMagic #NBAStats #TopPerformers #NBADaily
 
 ## TikTok
-Banchero dropped 25 & the Magic had 3 guys in the top 5 last night 😤 Who's your MVP? 👇 #NBA #NBAHighlights #PaoloBanchero #MagicNBA #LaMelo
+Banchero, Wagner, AND Carter all in the top 5? ORL went OFF last night 😤 Who's your MVP? 👇 #NBA #NBAHighlights #OrlandoMagic #LaMelo #NBAStats
 
 ## X (Twitter)
-Last night's top 5 performers: Banchero 25/5/6, LaMelo 23/2/5, J. Green 19/4/3, F. Wagner 18/7/6, W. Carter Jr. 16/6/1. ORL ran the stat sheet. #NBA #NBAStats
+Last night's top 5: Banchero 25-5-6, LaMelo 23-2-5, J. Green 19-4-3, F. Wagner 18-7-6, Carter 16-6-1. Orlando owned the night. #NBA #NBAStats
