@@ -2,12 +2,13 @@
 Rushmore MVP — FastAPI Backend
 Serves player data and generates card images.
 """
+import hmac
 import json
 import os
 import time
 import tempfile
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 import re
 
@@ -19,7 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import APIKeyHeader
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from generate_card import generate_card, load_players
 from generate_team_card import generate_team_card
@@ -41,8 +42,8 @@ _INTERNAL_KEY_HEADER = APIKeyHeader(name="X-Internal-Key", auto_error=False)
 _INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "")
 
 
-def _require_internal_key(key: str = Security(_INTERNAL_KEY_HEADER)):
-    if not _INTERNAL_API_KEY or key != _INTERNAL_API_KEY:
+def _require_internal_key(key: Optional[str] = Security(_INTERNAL_KEY_HEADER)):
+    if not _INTERNAL_API_KEY or not hmac.compare_digest(key or "", _INTERNAL_API_KEY):
         raise HTTPException(status_code=403, detail="Forbidden")
 
 
@@ -57,7 +58,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_ALLOWED_ORIGINS,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "X-Internal-Key"],
 )
 
 # Cache player DB in memory
@@ -398,10 +399,10 @@ def get_all_nba_tier(tier: int, limit: int = Query(5, ge=1, le=15)):
 
 class GenerateRequest(BaseModel):
     player_ids: List[int]
-    title: str = "MY MT. RUSHMORE"
-    subtitle: str = "ALL-TIME GREATEST"
+    title: str = Field("MY MT. RUSHMORE", max_length=120)
+    subtitle: str = Field("ALL-TIME GREATEST", max_length=120)
     background: str = ""
-    format: str = "story"
+    format: Literal["story", "feed"] = "story"
 
     @field_validator("background")
     @classmethod
@@ -413,13 +414,13 @@ class GenerateRequest(BaseModel):
 
 class GenerateTeamsRequest(BaseModel):
     team_codes: List[str]
-    title: str = "MY TOP 5 TEAMS"
+    title: str = Field("MY TOP 5 TEAMS", max_length=120)
     tier_labels: List[str] = []
 
 
 class GenerateBracketRequest(BaseModel):
     slots: List[Optional[str]]
-    title: str = "MY PLAYOFF BRACKET"
+    title: str = Field("MY PLAYOFF BRACKET", max_length=120)
 
 
 @app.post("/api/generate-bracket")

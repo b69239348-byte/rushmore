@@ -6,6 +6,7 @@ export async function POST(req: NextRequest) {
   const body = await req.arrayBuffer();
   const res = await fetch(`${backend}/api/generate`, {
     method: "POST",
+    signal: AbortSignal.timeout(25_000),
     headers: {
       "Content-Type": "application/json",
       "X-Internal-Key": internalKey,
