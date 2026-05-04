@@ -91,9 +91,15 @@ DECADE_LABELS = {
 }
 
 
+_DB_CACHE = None
+
+
 def load_players():
-    with open(DB_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    global _DB_CACHE
+    if _DB_CACHE is None:
+        with open(DB_PATH, "r", encoding="utf-8") as f:
+            _DB_CACHE = json.load(f)
+    return _DB_CACHE
 
 
 def _rank_by(players, key, limit=5, reverse=True):
@@ -181,6 +187,7 @@ def by_team(team_code, limit=5, sort_by="total_points"):
         affinity = _team_affinity(p, team_code)
         if affinity > 0:
             score = (p.get("total_points", 0) or 0) * affinity
+            p = dict(p)
             p["_team_score"] = score
             scored.append(p)
 
@@ -203,9 +210,9 @@ def by_era(decade_start, limit=5, sort_by="ppg"):
         to_y = p.get("to_year", 0) or 0
         # Player's career overlaps with the decade
         if from_y <= decade_end and to_y >= decade_start:
-            # Bonus: calculate how much of their career was in this decade
             overlap_start = max(from_y, decade_start)
             overlap_end = min(to_y, decade_end)
+            p = dict(p)
             p["_decade_years"] = overlap_end - overlap_start + 1
             filtered.append(p)
     label = DECADE_LABELS.get(decade_start, f"{decade_start}s")

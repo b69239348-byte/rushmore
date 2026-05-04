@@ -1,5 +1,15 @@
 const API_BASE = "/api";
 
+async function _json<T>(res: Response): Promise<T> {
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  return res.json();
+}
+
+async function _blob(res: Response): Promise<Blob> {
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  return res.blob();
+}
+
 export interface Player {
   id: number;
   name: string;
@@ -48,8 +58,7 @@ export interface CategoriesIndex {
 }
 
 export async function fetchCategories(): Promise<CategoriesIndex> {
-  const res = await fetch(`${API_BASE}/categories`);
-  return res.json();
+  return _json(await fetch(`${API_BASE}/categories`));
 }
 
 export async function fetchCategory(
@@ -62,18 +71,16 @@ export async function fetchCategory(
       url.searchParams.set(k, String(v))
     );
   }
-  const res = await fetch(url.toString());
-  return res.json();
+  return _json(await fetch(url.toString()));
 }
 
 export async function searchPlayers(
   query: string,
   limit = 40
 ): Promise<Player[]> {
-  const res = await fetch(
-    `${API_BASE}/players?q=${encodeURIComponent(query)}&limit=${limit}`
+  return _json(
+    await fetch(`${API_BASE}/players?q=${encodeURIComponent(query)}&limit=${limit}`)
   );
-  return res.json();
 }
 
 export async function generateTeamCard(
@@ -81,16 +88,17 @@ export async function generateTeamCard(
   title?: string,
   tierLabels?: string[]
 ): Promise<Blob> {
-  const res = await fetch(`${API_BASE}/generate-teams`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      team_codes: teamCodes,
-      title: title || "MY TOP 5 TEAMS",
-      tier_labels: tierLabels || [],
-    }),
-  });
-  return res.blob();
+  return _blob(
+    await fetch(`${API_BASE}/generate-teams`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        team_codes: teamCodes,
+        title: title || "MY TOP 5 TEAMS",
+        tier_labels: tierLabels || [],
+      }),
+    })
+  );
 }
 
 export async function generateCard(
@@ -100,16 +108,17 @@ export async function generateCard(
   background?: string,
   format: "story" | "feed" = "story"
 ): Promise<Blob> {
-  const res = await fetch(`${API_BASE}/generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      player_ids: playerIds,
-      title: title || "MY MT. RUSHMORE",
-      subtitle: "",
-      format,
-      ...(background && { background }),
-    }),
-  });
-  return res.blob();
+  return _blob(
+    await fetch(`${API_BASE}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        player_ids: playerIds,
+        title: title || "MY MT. RUSHMORE",
+        subtitle: "",
+        format,
+        ...(background && { background }),
+      }),
+    })
+  );
 }

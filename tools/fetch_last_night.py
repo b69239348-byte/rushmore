@@ -90,14 +90,14 @@ def fetch_top5():
                 _download_headshot(p["player_id"], p["player_name"])
         p["in_db"] = True  # always true now — either was there or just added
 
-    # Update main_team for existing players if they've changed teams
+    # Update current_team for existing players (tracks last known team; main_team stays unchanged)
     db_by_id = {p["id"]: p for p in db}
     team_updated = []
     for p in top5:
         entry = db_by_id.get(p["player_id"])
-        if entry and entry.get("main_team") != p["team"]:
-            log(f"Updating main_team for {p['player_name']}: {entry['main_team']} → {p['team']}")
-            entry["main_team"] = p["team"]
+        if entry and entry.get("current_team") != p["team"]:
+            log(f"Updating current_team for {p['player_name']}: {entry.get('current_team')} → {p['team']}")
+            entry["current_team"] = p["team"]
             team_updated.append(p["player_name"])
 
     if added or team_updated:
@@ -105,7 +105,7 @@ def fetch_top5():
         if added:
             log(f"players.json updated with new players: {added}")
         if team_updated:
-            log(f"players.json updated main_team for: {team_updated}")
+            log(f"players.json updated current_team for: {team_updated}")
 
     return {"date": date_label, "games": True, "players": top5}
 
@@ -184,7 +184,7 @@ def main():
     OUTPUT_FILE.write_text(json.dumps(result, indent=2, ensure_ascii=False))
     log(f"Saved to {OUTPUT_FILE}")
 
-    # Commit and push
+    # Commit and push — exit 1 on any failure so cron can alert
     import subprocess
     date_label = result["date"]
     cmds = [
@@ -196,6 +196,7 @@ def main():
         r = subprocess.run(cmd, capture_output=True, text=True)
         if r.returncode != 0:
             log(f"CMD FAILED: {' '.join(cmd)}\n{r.stderr}")
+            sys.exit(1)
         else:
             log(f"OK: {' '.join(cmd)}")
 

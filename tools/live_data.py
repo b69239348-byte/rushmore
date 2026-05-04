@@ -9,20 +9,21 @@ from pathlib import Path
 from typing import Optional
 
 CACHE_DIR = Path(__file__).parent.parent / ".tmp" / "cache"
-CACHE_MAX_AGE = 6 * 3600  # 6 hours in seconds
+CACHE_MAX_AGE = 6 * 3600        # 6 hours — for season leaders / award races
+PLAYOFF_CACHE_MAX_AGE = 30 * 60  # 30 min — bracket changes multiple times per day
 
 
 def _cache_path(key: str) -> Path:
     return CACHE_DIR / f"{key}.json"
 
 
-def _read_cache(key: str):
+def _read_cache(key: str, max_age: int = CACHE_MAX_AGE):
     """Read cached data if fresh enough, else return None."""
     path = _cache_path(key)
     if not path.exists():
         return None
     age = time.time() - path.stat().st_mtime
-    if age > CACHE_MAX_AGE:
+    if age > max_age:
         return None
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -356,7 +357,7 @@ def fetch_playoff_bracket() -> list[dict]:
     Returns [] during regular season.
     """
     cache_key = "playoff_bracket_v1"
-    cached = _read_cache(cache_key)
+    cached = _read_cache(cache_key, max_age=PLAYOFF_CACHE_MAX_AGE)
     if cached is not None:
         return cached
 

@@ -3,12 +3,13 @@ Rushmore MVP — FastAPI Backend
 Serves player data and generates card images.
 """
 import json
+import os
 import time
 import tempfile
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -30,11 +31,18 @@ from live_data import (
 
 app = FastAPI(title="Rushmore API")
 
+_ALLOWED_ORIGINS = [
+    "https://rushmore.cards",
+    "https://www.rushmore.cards",
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 # Cache player DB in memory
@@ -130,8 +138,11 @@ def get_live_players():
 # --- API Routes ---
 
 
+_VALID_SORT = {"total_points", "ppg", "rpg", "apg", "spg", "bpg", "total_rebounds", "total_assists"}
+
+
 @app.get("/api/players")
-def search_players(q: str = Query("", min_length=0), limit: int = 20):
+def search_players(q: str = Query("", min_length=0), limit: int = Query(20, ge=1, le=200)):
     """Search players by name. Empty query returns all legends + current season players."""
     db = get_db()
     live_players = get_live_players()
@@ -182,7 +193,9 @@ def search_players(q: str = Query("", min_length=0), limit: int = 20):
 
 
 HEADSHOT_DIR = Path(__file__).parent.parent / "assets" / "headshots"
-SILHOUETTE_SIZE = 12430  # all placeholder silhouettes are exactly this size
+# NBA CDN serves this exact byte size for all silhouette placeholders (verified 2025-04).
+# If this breaks: re-download a known placeholder and run: wc -c <file>
+SILHOUETTE_SIZE = 12430
 
 
 @app.get("/api/headshot/{player_id}")
@@ -207,34 +220,42 @@ def get_categories():
 
 
 @app.get("/api/categories/all-time")
-def get_all_time(limit: int = 5, sort_by: str = "total_points"):
+def get_all_time(limit: int = Query(5, ge=1, le=50), sort_by: str = "total_points"):
     """Top N players all-time."""
+    if sort_by not in _VALID_SORT:
+        raise HTTPException(status_code=422, detail=f"Invalid sort_by. Valid: {sorted(_VALID_SORT)}")
     return all_time(limit, sort_by)
 
 
 @app.get("/api/categories/position/{position_code}")
-def get_by_position(position_code: str, limit: int = 5, sort_by: str = "total_points"):
+def get_by_position(position_code: str, limit: int = Query(5, ge=1, le=50), sort_by: str = "total_points"):
     """Top players by position (G, F, C)."""
     position_code = position_code.upper()
     if position_code not in ("G", "F", "C"):
-        return {"error": "Position must be G, F, or C"}
+        raise HTTPException(status_code=422, detail="Position must be G, F, or C")
+    if sort_by not in _VALID_SORT:
+        raise HTTPException(status_code=422, detail=f"Invalid sort_by. Valid: {sorted(_VALID_SORT)}")
     return by_position(position_code, limit, sort_by)
 
 
 @app.get("/api/categories/team/{team_code}")
-def get_by_team(team_code: str, limit: int = 5, sort_by: str = "total_points"):
+def get_by_team(team_code: str, limit: int = Query(5, ge=1, le=50), sort_by: str = "total_points"):
     """Top players for a franchise."""
     team_code = team_code.upper()
     if team_code not in TEAM_NAMES:
-        return {"error": f"Unknown team: {team_code}"}
+        raise HTTPException(status_code=404, detail=f"Unknown team: {team_code}")
+    if sort_by not in _VALID_SORT:
+        raise HTTPException(status_code=422, detail=f"Invalid sort_by. Valid: {sorted(_VALID_SORT)}")
     return by_team(team_code, limit, sort_by)
 
 
 @app.get("/api/categories/era/{decade}")
-def get_by_era(decade: int, limit: int = 5, sort_by: str = "ppg"):
+def get_by_era(decade: int, limit: int = Query(5, ge=1, le=50), sort_by: str = "ppg"):
     """Top players of a decade (e.g. 1990)."""
     if decade < 1950 or decade > 2020 or decade % 10 != 0:
-        return {"error": "Decade must be 1950-2020 in steps of 10"}
+        raise HTTPException(status_code=422, detail="Decade must be 1950-2020 in steps of 10")
+    if sort_by not in _VALID_SORT:
+        raise HTTPException(status_code=422, detail=f"Invalid sort_by. Valid: {sorted(_VALID_SORT)}")
     return by_era(decade, limit, sort_by)
 
 
@@ -257,10 +278,10 @@ def get_awards():
 
 
 @app.get("/api/categories/awards/{slug}")
-def get_award(slug: str, limit: int = 10):
+def get_award(slug: str, limit: int = Query(10, ge=1, le=50)):
     """Players ranked by a specific award."""
     if slug not in AWARD_DEFS:
-        return {"error": f"Unknown award: {slug}", "available": list(AWARD_DEFS.keys())}
+        raise HTTPException(status_code=404, detail=f"Unknown award: {slug}", headers={"X-Available": ",".join(AWARD_DEFS.keys())})
     return by_award(slug, limit)
 
 
@@ -342,9 +363,9 @@ def get_current_mip(limit: int = 5):
 
 
 @app.get("/api/categories/all-nba/{tier}")
-def get_all_nba_tier(tier: int, limit: int = 5):
+def get_all_nba_tier(tier: int, limit: int = Query(5, ge=1, le=15)):
     if tier not in (1, 2, 3):
-        return {"error": "Tier must be 1, 2, or 3"}
+        raise HTTPException(status_code=422, detail="Tier must be 1, 2, or 3")
     season = _detect_season()
     ordinals = {1: "First", 2: "Second", 3: "Third"}
     cache_key = f"all_nba_{tier}"
@@ -380,19 +401,20 @@ class GenerateBracketRequest(BaseModel):
 
 
 @app.post("/api/generate-bracket")
-def generate_bracket(req: GenerateBracketRequest):
+def generate_bracket(req: GenerateBracketRequest, background_tasks: BackgroundTasks):
     """Generate a playoff bracket card image."""
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         output_path = tmp.name
     generate_bracket_card(req.slots, title=req.title, output_path=output_path)
-    return FileResponse(output_path, media_type="image/png", filename="rushmore-bracket.png")
+    background_tasks.add_task(os.unlink, output_path)
+    return FileResponse(output_path, media_type="image/png", filename="rushmore-bracket.png", background=background_tasks)
 
 
 @app.post("/api/generate-teams")
-def generate_teams(req: GenerateTeamsRequest):
+def generate_teams(req: GenerateTeamsRequest, background_tasks: BackgroundTasks):
     """Generate a team ranking card and return it."""
     if not req.team_codes or len(req.team_codes) > 5:
-        return {"error": "Provide 1-5 team codes"}
+        raise HTTPException(status_code=422, detail="Provide 1-5 team codes")
 
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         output_path = tmp.name
@@ -410,7 +432,8 @@ def generate_teams(req: GenerateTeamsRequest):
         team_stats=stats,
         tier_labels=req.tier_labels,
     )
-    return FileResponse(output_path, media_type="image/png", filename="rushmore-teams.png")
+    background_tasks.add_task(os.unlink, output_path)
+    return FileResponse(output_path, media_type="image/png", filename="rushmore-teams.png", background=background_tasks)
 
 
 _ILLUSTRATED_POOL = [
@@ -451,19 +474,20 @@ def _pick_background(subtitle: str, explicit: str) -> str:
 
 
 @app.post("/api/generate")
-def generate(req: GenerateRequest):
+def generate(req: GenerateRequest, background_tasks: BackgroundTasks):
     """Generate a card image and return it."""
     if not req.player_ids or len(req.player_ids) > 5:
-        return {"error": "Provide 1-5 player IDs"}
+        raise HTTPException(status_code=422, detail="Provide 1-5 player IDs")
 
     queries = [str(pid) for pid in req.player_ids]
-    background = _pick_background(req.subtitle, req.background)
+    bg = _pick_background(req.subtitle, req.background)
 
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         output_path = tmp.name
 
-    generate_card(queries, title=req.title, subtitle=req.subtitle, output_path=output_path, background=background, extra_players=get_live_players(), card_format=req.format)
-    return FileResponse(output_path, media_type="image/png", filename="rushmore.png")
+    generate_card(queries, title=req.title, subtitle=req.subtitle, output_path=output_path, background=bg, extra_players=get_live_players(), card_format=req.format)
+    background_tasks.add_task(os.unlink, output_path)
+    return FileResponse(output_path, media_type="image/png", filename="rushmore.png", background=background_tasks)
 
 
 # --- Serve Frontend ---
@@ -474,6 +498,8 @@ frontend_dir = Path(__file__).parent.parent / "frontend"
 @app.get("/")
 def serve_index():
     index_path = frontend_dir / "index.html"
+    if not index_path.exists():
+        raise HTTPException(status_code=404, detail="Frontend not built")
     return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
 

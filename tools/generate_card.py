@@ -31,7 +31,7 @@ DARK_GRAY   = (40, 50, 70)
 HEADSHOT_DIR  = Path(__file__).parent.parent / "assets" / "headshots"
 LOGO_DIR      = Path(__file__).parent.parent / "assets" / "team_logos"
 BG_DIR        = Path(__file__).parent.parent / "assets" / "card_backgrounds"
-USER_BG_DIR   = Path(__file__).parent.parent / "assets" / "design-inspiration "
+DESIGN_REF_DIR = Path(__file__).parent.parent / "assets" / "design-inspiration"
 DB_PATH       = Path(__file__).parent.parent / "players.json"
 
 TITLE_H   = 210
@@ -101,9 +101,13 @@ def _load_background(name: str, height: int = HEIGHT) -> Image.Image:
     # Try card_backgrounds first, then user uploads
     candidates = [
         BG_DIR / f"{name}.png",
+        BG_DIR / f"{name}.jpg",
+        BG_DIR / f"{name}.jpeg",
         BG_DIR / f"{name}",
-        USER_BG_DIR / f"{name}.png",
-        USER_BG_DIR / f"{name}",
+        DESIGN_REF_DIR / f"{name}.png",
+        DESIGN_REF_DIR / f"{name}.jpg",
+        DESIGN_REF_DIR / f"{name}.jpeg",
+        DESIGN_REF_DIR / f"{name}",
     ]
     for path in candidates:
         if path.exists():
@@ -421,7 +425,7 @@ def generate_card(
         text_block_h = _name_h + 8 + _meta_h + 8 + _stats_h
         text_y = row_y + (row_h - text_block_h) // 2
 
-        name_color = WHITE if not is_top else WHITE
+        name_color = WHITE
         draw.text((text_x, text_y), name, fill=name_color, font=name_font)
 
         # Meta (position + main team)
@@ -443,7 +447,12 @@ def generate_card(
             ast = gs.get("ast", 0)
             stl = gs.get("stl", 0)
             blk = gs.get("blk", 0)
-            stats = f"{pts} PTS  ·  {reb} REB  ·  {ast} AST  ·  {stl} STL  ·  {blk} BLK"
+            parts = [f"{pts} PTS", f"{reb} REB", f"{ast} AST"]
+            if stl > 0:
+                parts.append(f"{stl} STL")
+            if blk > 0:
+                parts.append(f"{blk} BLK")
+            stats = " · ".join(parts)
         else:
             ppg = player.get("current_ppg") or player.get("ppg", 0)
             rpg = player.get("current_rpg") or player.get("rpg", 0)
