@@ -25,7 +25,7 @@ export default function BuildPage() {
 
   // Initial load + debounced search
   useEffect(() => {
-    clearTimeout(debounceRef.current);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setLoading(true);
       searchPlayers(query, 50)
@@ -33,7 +33,7 @@ export default function BuildPage() {
         .catch(console.error)
         .finally(() => setLoading(false));
     }, query ? 200 : 0);
-    return () => clearTimeout(debounceRef.current);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [query]);
 
   const handlePlayerClick = useCallback((player: Player) => {
