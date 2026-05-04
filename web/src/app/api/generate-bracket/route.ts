@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND = process.env.NEXT_PUBLIC_API_URL ?? "";
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? "";
-
 export async function POST(req: NextRequest) {
+  const backend = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const internalKey = process.env.INTERNAL_API_KEY ?? "";
   const body = await req.arrayBuffer();
-  const res = await fetch(`${BACKEND}/api/generate-bracket`, {
+  const res = await fetch(`${backend}/api/generate-bracket`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Internal-Key": INTERNAL_KEY,
+      "X-Internal-Key": internalKey,
     },
     body,
   });
