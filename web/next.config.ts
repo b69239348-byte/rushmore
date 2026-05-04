@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: `https://rushmore-production.up.railway.app/api/:path*`,
+        destination: `http://178.104.249.211:8000/api/:path*`,
       },
     ];
   },
