@@ -37,18 +37,24 @@ ufw allow 8080/tcp
 Vom lokalen Rechner (im Rushmore-Projektordner):
 
 ```bash
+# Code (tools/) flach nach /opt/rushmore/
 rsync -avz --progress \
-  --exclude '__pycache__' \
-  --exclude '*.pyc' \
-  --exclude 'node_modules' \
-  --exclude '.next' \
-  --exclude 'venv' \
+  --exclude '__pycache__' --exclude '*.pyc' \
   -e "ssh -i ~/.ssh/id_ed25519" \
-  tools/ assets/ players.json \
+  tools/ \
   root@178.104.249.211:/opt/rushmore/
+
+# Assets in /opt/rushmore/assets/ (Unterverzeichnis beibehalten!)
+rsync -avz --progress \
+  -e "ssh -i ~/.ssh/id_ed25519" \
+  assets/ players.json \
+  root@178.104.249.211:/opt/rushmore/assets/
 ```
 
 > Dauert wegen der 87MB Headshots 1-2 Minuten. Bei späteren Deploys überträgt rsync nur Änderungen.
+
+> **Wichtig:** Code sucht Assets über `Path(__file__).parent.parent / "assets"` = `/opt/assets/`.
+> Daher Symlink nötig (einmalig): `ln -sfn /opt/rushmore/assets /opt/assets`
 
 ---
 
