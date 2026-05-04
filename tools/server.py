@@ -11,6 +11,9 @@ from typing import List, Optional
 
 import re
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, Query, HTTPException, BackgroundTasks, Depends, Security
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
