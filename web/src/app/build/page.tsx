@@ -16,7 +16,7 @@ export default function BuildPage() {
   const [query, setQuery] = useState("");
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedIds = useMemo(
     () => new Set(slots.filter((p): p is Player => p !== null).map((p) => p.id)),

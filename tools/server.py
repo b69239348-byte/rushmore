@@ -507,7 +507,7 @@ def generate(req: GenerateRequest, background_tasks: BackgroundTasks, _: None = 
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         output_path = tmp.name
 
-    generate_card(queries, title=req.title, subtitle=req.subtitle, output_path=output_path, background=bg, extra_players=get_live_players(), card_format=req.format)
+    generate_card(queries, title=req.title, subtitle=req.subtitle, output_path=output_path, background=bg, extra_players=get_live_players(), card_format=req.format, db=get_db())
     background_tasks.add_task(os.unlink, output_path)
     return FileResponse(output_path, media_type="image/png", filename="rushmore.png", background=background_tasks)
 

@@ -236,6 +236,7 @@ def generate_card(
     extra_players=None,
     game_stats=None,          # {player_id: {pts, reb, ast, stl, blk}}; overrides season averages
     card_format: str = "story",
+    db=None,
 ):
     _FORMATS = {"story": HEIGHT, "feed": 1080}
     if card_format not in _FORMATS:
@@ -251,7 +252,8 @@ def generate_card(
     _row_h    = _row_area // ROW_COUNT
     _photo_size = int(_row_h * 0.70)
 
-    db = load_players()
+    if db is None:
+        db = load_players()
     if extra_players:
         existing_ids = {p["id"] for p in db}
         db = db + [p for p in extra_players if p["id"] not in existing_ids]
