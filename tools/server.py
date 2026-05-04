@@ -235,7 +235,7 @@ def get_categories():
 
 
 @app.get("/api/categories/all-time")
-def get_all_time(limit: int = Query(5, ge=1, le=50), sort_by: str = "total_points"):
+def get_all_time(limit: int = Query(5, ge=1, le=300), sort_by: str = "total_points"):
     """Top N players all-time."""
     if sort_by not in _VALID_SORT:
         raise HTTPException(status_code=422, detail=f"Invalid sort_by. Valid: {sorted(_VALID_SORT)}")
@@ -243,7 +243,7 @@ def get_all_time(limit: int = Query(5, ge=1, le=50), sort_by: str = "total_point
 
 
 @app.get("/api/categories/position/{position_code}")
-def get_by_position(position_code: str, limit: int = Query(5, ge=1, le=50), sort_by: str = "total_points"):
+def get_by_position(position_code: str, limit: int = Query(5, ge=1, le=300), sort_by: str = "total_points"):
     """Top players by position (G, F, C)."""
     position_code = position_code.upper()
     if position_code not in ("G", "F", "C"):
@@ -254,7 +254,7 @@ def get_by_position(position_code: str, limit: int = Query(5, ge=1, le=50), sort
 
 
 @app.get("/api/categories/team/{team_code}")
-def get_by_team(team_code: str, limit: int = Query(5, ge=1, le=50), sort_by: str = "total_points"):
+def get_by_team(team_code: str, limit: int = Query(5, ge=1, le=300), sort_by: str = "total_points"):
     """Top players for a franchise."""
     team_code = team_code.upper()
     if team_code not in TEAM_NAMES:
@@ -265,7 +265,7 @@ def get_by_team(team_code: str, limit: int = Query(5, ge=1, le=50), sort_by: str
 
 
 @app.get("/api/categories/era/{decade}")
-def get_by_era(decade: int, limit: int = Query(5, ge=1, le=50), sort_by: str = "ppg"):
+def get_by_era(decade: int, limit: int = Query(5, ge=1, le=300), sort_by: str = "ppg"):
     """Top players of a decade (e.g. 1990)."""
     if decade < 1950 or decade > 2020 or decade % 10 != 0:
         raise HTTPException(status_code=422, detail="Decade must be 1950-2020 in steps of 10")
