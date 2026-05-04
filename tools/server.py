@@ -9,11 +9,14 @@ import tempfile
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import FastAPI, Query, HTTPException, BackgroundTasks
+import re
+
+from fastapi import FastAPI, Query, HTTPException, BackgroundTasks, Depends, Security
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from fastapi.security import APIKeyHeader
+from pydantic import BaseModel, field_validator
 
 from generate_card import generate_card, load_players
 from generate_team_card import generate_team_card
@@ -30,6 +33,15 @@ from live_data import (
 )
 
 app = FastAPI(title="Rushmore API")
+
+_INTERNAL_KEY_HEADER = APIKeyHeader(name="X-Internal-Key", auto_error=False)
+_INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "")
+
+
+def _require_internal_key(key: str = Security(_INTERNAL_KEY_HEADER)):
+    if not _INTERNAL_API_KEY or key != _INTERNAL_API_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
 
 _ALLOWED_ORIGINS = [
     "https://rushmore.cards",
@@ -388,6 +400,13 @@ class GenerateRequest(BaseModel):
     background: str = ""
     format: str = "story"
 
+    @field_validator("background")
+    @classmethod
+    def validate_background(cls, v: str) -> str:
+        if v and not re.match(r'^[a-zA-Z0-9_-]+$', v):
+            return ""
+        return v
+
 
 class GenerateTeamsRequest(BaseModel):
     team_codes: List[str]
@@ -401,7 +420,7 @@ class GenerateBracketRequest(BaseModel):
 
 
 @app.post("/api/generate-bracket")
-def generate_bracket(req: GenerateBracketRequest, background_tasks: BackgroundTasks):
+def generate_bracket(req: GenerateBracketRequest, background_tasks: BackgroundTasks, _: None = Depends(_require_internal_key)):
     """Generate a playoff bracket card image."""
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         output_path = tmp.name
@@ -411,7 +430,7 @@ def generate_bracket(req: GenerateBracketRequest, background_tasks: BackgroundTa
 
 
 @app.post("/api/generate-teams")
-def generate_teams(req: GenerateTeamsRequest, background_tasks: BackgroundTasks):
+def generate_teams(req: GenerateTeamsRequest, background_tasks: BackgroundTasks, _: None = Depends(_require_internal_key)):
     """Generate a team ranking card and return it."""
     if not req.team_codes or len(req.team_codes) > 5:
         raise HTTPException(status_code=422, detail="Provide 1-5 team codes")
@@ -474,7 +493,7 @@ def _pick_background(subtitle: str, explicit: str) -> str:
 
 
 @app.post("/api/generate")
-def generate(req: GenerateRequest, background_tasks: BackgroundTasks):
+def generate(req: GenerateRequest, background_tasks: BackgroundTasks, _: None = Depends(_require_internal_key)):
     """Generate a card image and return it."""
     if not req.player_ids or len(req.player_ids) > 5:
         raise HTTPException(status_code=422, detail="Provide 1-5 player IDs")

@@ -98,19 +98,20 @@ def _font_impact(size: int):
 
 def _load_background(name: str, height: int = HEIGHT) -> Image.Image:
     """Load and resize background to card dimensions."""
-    # Try card_backgrounds first, then user uploads
+    allowed_dirs = [BG_DIR.resolve(), DESIGN_REF_DIR.resolve()]
     candidates = [
         BG_DIR / f"{name}.png",
         BG_DIR / f"{name}.jpg",
         BG_DIR / f"{name}.jpeg",
-        BG_DIR / f"{name}",
         DESIGN_REF_DIR / f"{name}.png",
         DESIGN_REF_DIR / f"{name}.jpg",
         DESIGN_REF_DIR / f"{name}.jpeg",
-        DESIGN_REF_DIR / f"{name}",
     ]
     for path in candidates:
-        if path.exists():
+        resolved = path.resolve()
+        if not any(resolved.is_relative_to(d) for d in allowed_dirs):
+            continue
+        if resolved.exists():
             img = Image.open(path).convert("RGB")
             # Fill 1080xheight preserving aspect ratio
             img_ratio = img.width / img.height
