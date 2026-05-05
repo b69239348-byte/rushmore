@@ -3,5 +3,5 @@
 import { CategoryPage } from "@/components/categories/CategoryPage";
 
 export default function ActivePage() {
-  return <CategoryPage path="active" params={{ limit: 10 }} />;
+  return <CategoryPage path="active" params={{ limit: 200 }} />;
 }
