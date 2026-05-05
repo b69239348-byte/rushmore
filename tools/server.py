@@ -158,7 +158,7 @@ _VALID_SORT = {"total_points", "ppg", "rpg", "apg", "spg", "bpg", "total_rebound
 
 
 @app.get("/api/players")
-def search_players(q: str = Query("", min_length=0), limit: int = Query(20, ge=1, le=200)):
+def search_players(q: str = Query("", min_length=0), limit: int = Query(20, ge=1, le=600)):
     """Search players by name. Empty query returns all legends + current season players."""
     db = get_db()
     live_players = get_live_players()
@@ -302,13 +302,13 @@ def get_award(slug: str, limit: int = Query(10, ge=1, le=50)):
 
 
 @app.get("/api/categories/current-season")
-def get_current_season(limit: int = 30):
+def get_current_season(limit: int = Query(200, ge=1, le=500)):
     """Current season leaders (live data, cached)."""
     return current_season(limit)
 
 
 @app.get("/api/categories/active")
-def get_active_players(limit: int = 10):
+def get_active_players(limit: int = Query(200, ge=1, le=500)):
     try:
         return active_players(limit)
     except Exception:

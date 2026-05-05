@@ -106,8 +106,7 @@ def fetch_active_players(limit: int = 10) -> list[dict]:
     if cached is not None:
         return cached[:limit]
 
-    # Get a broad set of season leaders (top 100 scorers are all active)
-    all_leaders = fetch_season_leaders(season=season, limit=100)
+    all_leaders = fetch_season_leaders(season=season, limit=500)
 
     # Sort by PPG for the "best active" ranking
     sorted_by_ppg = sorted(all_leaders, key=lambda p: p["ppg"], reverse=True)
@@ -258,16 +257,18 @@ def fetch_current_mip_race(limit: int = 5) -> list[dict]:
     start = int(parts[0]) - 1
     last_season = f"{start}-{str(start + 1)[-2:]}"
 
-    current = {p["id"]: p for p in fetch_season_leaders(season=season, limit=100)}
-    last = {p["id"]: p for p in fetch_season_leaders(season=last_season, limit=100)}
+    current = {p["id"]: p for p in fetch_season_leaders(season=season, limit=500)}
+    last = {p["id"]: p for p in fetch_season_leaders(season=last_season, limit=500)}
 
     improved = []
     for pid, p in current.items():
-        if pid in last and p.get("gp", 0) >= 20:
-            delta = round(p["ppg"] - last[pid]["ppg"], 1)
-            if delta > 0:
-                p["_improvement"] = delta
-                improved.append(p)
+        if p.get("gp", 0) < 20:
+            continue
+        last_ppg = last[pid]["ppg"] if pid in last else 0.0
+        delta = round(p["ppg"] - last_ppg, 1)
+        if delta > 0:
+            p["_improvement"] = delta
+            improved.append(p)
 
     improved.sort(key=lambda p: p["_improvement"], reverse=True)
     _write_cache(cache_key, improved)
