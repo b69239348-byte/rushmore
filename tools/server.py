@@ -318,64 +318,47 @@ def get_active_players(limit: int = Query(200, ge=1, le=500)):
 
 # --- Current Season Award Races ---
 
+_AWARD_CACHE_SIZE = 30  # always cache top 30, apply limit at return time
+
+
+def _award_response(cache_key: str, title: str, subtitle: str, fetch_fn, fallback_key: str, limit: int):
+    cached = _get_cached(cache_key)
+    if cached is None:
+        try:
+            players = fetch_fn(_AWARD_CACHE_SIZE)
+        except Exception:
+            players = _fallback(fallback_key)[:_AWARD_CACHE_SIZE]
+        cached = {"title": title, "subtitle": subtitle, "players": _enrich_jersey(players)}
+        _set_cached(cache_key, cached)
+    return {**cached, "players": cached["players"][:limit]}
+
+
 @app.get("/api/categories/current-mvp")
-def get_current_mvp(limit: int = 5):
+def get_current_mvp(limit: int = Query(10, ge=1, le=30)):
     season = _detect_season()
-    cached = _get_cached("current_mvp")
-    if cached is not None:
-        return cached
-    try:
-        players = fetch_current_mvp_race(limit)
-    except Exception:
-        players = _fallback("mvp_race")[:limit]
-    result = {"title": "MVP RACE", "subtitle": f"{season} — Top Candidates by Efficiency", "players": _enrich_jersey(players)}
-    _set_cached("current_mvp", result)
-    return result
+    return _award_response("current_mvp", "MVP RACE", f"{season} — Top Candidates by Efficiency",
+                           fetch_current_mvp_race, "mvp_race", limit)
 
 
 @app.get("/api/categories/current-dpoy")
-def get_current_dpoy(limit: int = 5):
+def get_current_dpoy(limit: int = Query(10, ge=1, le=30)):
     season = _detect_season()
-    cached = _get_cached("current_dpoy")
-    if cached is not None:
-        return cached
-    try:
-        players = fetch_current_dpoy_race(limit)
-    except Exception:
-        players = _fallback("dpoy_race")[:limit]
-    result = {"title": "DPOY RACE", "subtitle": f"{season} — Top Defensive Players", "players": _enrich_jersey(players)}
-    _set_cached("current_dpoy", result)
-    return result
+    return _award_response("current_dpoy", "DPOY RACE", f"{season} — Top Defensive Players",
+                           fetch_current_dpoy_race, "dpoy_race", limit)
 
 
 @app.get("/api/categories/current-roy")
-def get_current_roy(limit: int = 5):
+def get_current_roy(limit: int = Query(10, ge=1, le=30)):
     season = _detect_season()
-    cached = _get_cached("current_roy")
-    if cached is not None:
-        return cached
-    try:
-        players = fetch_current_roy_race(limit)
-    except Exception:
-        players = _fallback("roy_race")[:limit]
-    result = {"title": "ROOKIE OF THE YEAR", "subtitle": f"{season} — Top Rookies", "players": _enrich_jersey(players)}
-    _set_cached("current_roy", result)
-    return result
+    return _award_response("current_roy", "ROOKIE OF THE YEAR", f"{season} — Top Rookies",
+                           fetch_current_roy_race, "roy_race", limit)
 
 
 @app.get("/api/categories/current-mip")
-def get_current_mip(limit: int = 5):
+def get_current_mip(limit: int = Query(10, ge=1, le=30)):
     season = _detect_season()
-    cached = _get_cached("current_mip")
-    if cached is not None:
-        return cached
-    try:
-        players = fetch_current_mip_race(limit)
-    except Exception:
-        players = _fallback("mip_race")[:limit]
-    result = {"title": "MOST IMPROVED", "subtitle": f"{season} — Biggest PPG Jump", "players": _enrich_jersey(players)}
-    _set_cached("current_mip", result)
-    return result
+    return _award_response("current_mip", "MOST IMPROVED", f"{season} — Biggest PPG Jump",
+                           fetch_current_mip_race, "mip_race", limit)
 
 
 @app.get("/api/categories/all-nba/{tier}")
