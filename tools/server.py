@@ -362,7 +362,7 @@ def get_current_mip(limit: int = Query(10, ge=1, le=50)):
 
 
 @app.get("/api/categories/all-nba/{tier}")
-def get_all_nba_tier(tier: int, limit: int = Query(5, ge=1, le=15)):
+def get_all_nba_tier(tier: int, limit: int = Query(10, ge=1, le=50)):
     if tier not in (1, 2, 3):
         raise HTTPException(status_code=422, detail="Tier must be 1, 2, or 3")
     season = _detect_season()
