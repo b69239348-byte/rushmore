@@ -362,7 +362,7 @@ def get_current_mip(limit: int = Query(10, ge=1, le=50)):
 
 
 @app.get("/api/categories/all-nba/{tier}")
-def get_all_nba_tier(tier: int, limit: int = Query(10, ge=1, le=50)):
+def get_all_nba_tier(tier: int, limit: int = Query(50, ge=1, le=50)):
     if tier not in (1, 2, 3):
         raise HTTPException(status_code=422, detail="Tier must be 1, 2, or 3")
     season = _detect_season()
@@ -370,13 +370,15 @@ def get_all_nba_tier(tier: int, limit: int = Query(10, ge=1, le=50)):
     cache_key = f"all_nba_{tier}"
     cached = _get_cached(cache_key)
     if cached is not None:
+        cached["players"] = cached["players"][:limit]
         return cached
     try:
-        players = fetch_all_nba_tier(tier, limit)
+        players = fetch_all_nba_tier(tier, 50)
     except Exception:
-        players = _fallback(f"all_nba_{tier}")[:limit]
+        players = _fallback(f"all_nba_{tier}")
     result = {"title": f"ALL-NBA {ordinals[tier].upper()} TEAM", "subtitle": f"{season} — {ordinals[tier]} Team", "players": _enrich_jersey(players)}
     _set_cached(cache_key, result)
+    result["players"] = result["players"][:limit]
     return result
 
 
