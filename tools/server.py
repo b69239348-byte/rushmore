@@ -318,7 +318,7 @@ def get_active_players(limit: int = Query(200, ge=1, le=500)):
 
 # --- Current Season Award Races ---
 
-_AWARD_CACHE_SIZE = 30  # always cache top 30, apply limit at return time
+_AWARD_CACHE_SIZE = 50  # always cache top 50, apply limit at return time
 
 
 def _award_response(cache_key: str, title: str, subtitle: str, fetch_fn, fallback_key: str, limit: int):
@@ -334,28 +334,28 @@ def _award_response(cache_key: str, title: str, subtitle: str, fetch_fn, fallbac
 
 
 @app.get("/api/categories/current-mvp")
-def get_current_mvp(limit: int = Query(10, ge=1, le=30)):
+def get_current_mvp(limit: int = Query(10, ge=1, le=50)):
     season = _detect_season()
     return _award_response("current_mvp", "MVP RACE", f"{season} — Top Candidates by Efficiency",
                            fetch_current_mvp_race, "mvp_race", limit)
 
 
 @app.get("/api/categories/current-dpoy")
-def get_current_dpoy(limit: int = Query(10, ge=1, le=30)):
+def get_current_dpoy(limit: int = Query(10, ge=1, le=50)):
     season = _detect_season()
     return _award_response("current_dpoy", "DPOY RACE", f"{season} — Top Defensive Players",
                            fetch_current_dpoy_race, "dpoy_race", limit)
 
 
 @app.get("/api/categories/current-roy")
-def get_current_roy(limit: int = Query(10, ge=1, le=30)):
+def get_current_roy(limit: int = Query(10, ge=1, le=50)):
     season = _detect_season()
     return _award_response("current_roy", "ROOKIE OF THE YEAR", f"{season} — Top Rookies",
                            fetch_current_roy_race, "roy_race", limit)
 
 
 @app.get("/api/categories/current-mip")
-def get_current_mip(limit: int = Query(10, ge=1, le=30)):
+def get_current_mip(limit: int = Query(10, ge=1, le=50)):
     season = _detect_season()
     return _award_response("current_mip", "MOST IMPROVED", f"{season} — Biggest PPG Jump",
                            fetch_current_mip_race, "mip_race", limit)

@@ -9,5 +9,5 @@ export default function AwardPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  return <CategoryPage path={`awards/${slug}`} params={{ limit: 10 }} />;
+  return <CategoryPage path={`awards/${slug}`} params={{ limit: 50 }} />;
 }

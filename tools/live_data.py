@@ -262,10 +262,11 @@ def fetch_current_mip_race(limit: int = 5) -> list[dict]:
 
     improved = []
     for pid, p in current.items():
-        if p.get("gp", 0) < 20:
+        if pid not in last:
+            continue  # exclude rookies and players without prior season data
+        if p.get("gp", 0) < 20 or last[pid].get("gp", 0) < 10:
             continue
-        last_ppg = last[pid]["ppg"] if pid in last else 0.0
-        delta = round(p["ppg"] - last_ppg, 1)
+        delta = round(p["ppg"] - last[pid]["ppg"], 1)
         if delta > 0:
             p["_improvement"] = delta
             improved.append(p)
