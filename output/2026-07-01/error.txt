@@ -1,0 +1,5 @@
+Data not available — local fetch script may have failed.
+
+Details: tools/data/last_night.json was last modified 2026-06-30 06:04 UTC (~24h ago, threshold: 12h).
+File content shows date "2026-05-05" with games:false — data appears stale/corrupted.
+No content generated for 2026-07-01.
